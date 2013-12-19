@@ -1,0 +1,122 @@
+%%% !Mode\dots "XeLaTeX:UTF-8"
+
+\pagenumbering{arabic}          % 页码数字
+\setcounter{page}{1}            % 页码起始数字
+\renewcommand{\sfdefault}{phv}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+
+% 行距 1.25
+\renewcommand{\baselinestretch}{1.25}
+\newcommand{\tablecell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}   % 表格内换行，用法\tablecell{c}{balabalba\\balabalba}
+\graphicspath{{figures/}}  		% 图路径 
+
+%%%%%%字体部分%%%%%%%%
+\newfontfamily\fangsong{FangSong}     % 仿宋
+\newfontfamily\hei{SimHei}             % 黑体
+\newfontfamily\kai{KaiTi}             % 楷体
+\newfontfamily\song{SimSun}             % 宋体
+\newfontfamily\lishu{LiSu}             			% 隶书
+\newfontfamily\yahei{Microsoft YaHei}          	% 微软雅黑
+\newfontfamily\times{Times New Roman}
+%\newfontfamily\monaco{Monaco}
+
+%%%%%%%字号%%%%%%%
+%%%%%%单倍%%%%%%%%
+\newcommand{\yihao}{\fontsize{26pt}{26pt}\selectfont}       % 一号, 单倍行距
+\newcommand{\xiaoyi}{\fontsize{24pt}{24pt}\selectfont}      % 小一, 单倍行距
+\newcommand{\erhao}{\fontsize{22pt}{22pt}\selectfont}       % 二号, 单倍行距
+\newcommand{\xiaoer}{\fontsize{18pt}{18pt}\selectfont}      % 小二, 单倍行距
+\newcommand{\sanhao}{\fontsize{16pt}{16pt}\selectfont}      % 三号, 单倍行距
+\newcommand{\xiaosan}{\fontsize{15pt}{15pt}\selectfont}     % 小三, 单倍行距
+\newcommand{\sihao}{\fontsize{14pt}{14pt}\selectfont}       % 四号, 单倍行距
+\newcommand{\xiaosi}{\fontsize{12pt}{12pt}\selectfont}      % 小四, 单倍行距
+\newcommand{\wuhao}{\fontsize{10.5pt}{10.5pt}\selectfont}   % 五号, 单倍行距
+\newcommand{\xiaowu}{\fontsize{9pt}{9pt}\selectfont}        % 小五, 单倍行距
+
+%%%%%%1.5倍%%%%%%%
+\newcommand{\Yihao}{\fontsize{26pt}{39pt}\selectfont}       % 一号, 1.5倍行距
+\newcommand{\Xiaoyi}{\fontsize{24pt}{36pt}\selectfont}      % 小一, 1.5倍行距
+\newcommand{\Erhao}{\fontsize{22pt}{33pt}\selectfont}       % 二号, 1.5倍行距
+\newcommand{\Xiaoer}{\fontsize{18pt}{27pt}\selectfont}      % 小二, 1.5倍行距
+\newcommand{\Sanhao}{\fontsize{16pt}{24pt}\selectfont}      % 三号, 1.5倍行距
+\newcommand{\Xiaosan}{\fontsize{15pt}{22.5pt}\selectfont}   % 小三, 1.5倍行距
+\newcommand{\Sihao}{\fontsize{14pt}{21pt}\selectfont}       % 四号, 1.5倍行距
+\newcommand{\Xiaosi}{\fontsize{12pt}{18pt}\selectfont}      % 小四, 1.5倍行距
+\newcommand{\XIaosi}{\fontsize{12pt}{15pt}\selectfont}      % 小四, 1.25倍行距
+\newcommand{\Wuhao}{\fontsize{10.5pt}{15.75pt}\selectfont}  % 五号, 1.5倍行距
+\newcommand{\Xiaowu}{\fontsize{9pt}{13.5pt}\selectfont}     % 小五, 1.5倍行距
+
+%%%%%%%%%% Table, Figure and Equation %%%%%%%%%%%%%%%%%
+%\renewcommand{\thefigure}{\arabic{section}-\arabic{figure}}       % 使图编号为 7-1 的格式 
+%\renewcommand{\thesubfigure}{\alph{subfigure})}                   % 使子图编号为 a) 的格式
+%\renewcommand{\thesubtable}{(\alph{subtable})}                    % 使子表编号为 (a) 的格式
+%\renewcommand{\thetable}{\arabic{section}-\arabic{table}}         % 使表编号为 7-1 的格式
+%\renewcommand{\theequation}{\arabic{section}-\arabic{equation}}   % 使公式编号为 7-1 的格式
+
+%%%%%%%%%% Chapter and Section %%%%%%%%%%%%%
+\setlength{\parindent}{2em}
+\def\cnarticle
+{
+
+\newcommand{\shijian}{\number\year~年~\number\month~月~\number\day~日}
+\renewcommand{\tablename}{\song\wuhao 表}                                     % 插表题头
+\renewcommand{\figurename}{\song\wuhao 图}                                    % 插图题头
+
+\titleformat{\section}{\sihao\hei\bfseries}{\hei\thesection}{1em}{}
+\titlespacing{\section}{0pt}{\baselineskip}{0.3\baselineskip}
+
+\titleformat{\subsection}{\sihao\hei\bfseries}{\hei\thesubsection}{1em}{}
+\titlespacing{\subsection}{0pt}{0.1\baselineskip}{0.3\baselineskip}
+
+\titleformat{\subsubsection}{\sihao\hei}{\thesubsubsection}{1em}{}
+\titlespacing{\subsubsection}{0pt}{0.05\baselineskip}{0.1\baselineskip}
+
+\renewcommand{\refname}{参考文献}
+}
+%
+
+%%%%%%%%%%%%%%%%%%%%%%%% Code %%%%%%%%%%%%%%%%%%%%%%%%%
+\lstset{
+        language=matlab,            % 设定默认语言为MATLAB
+        keywords={break,case,catch,continue,else,elseif,end,for,function,
+        global,if,otherwise,persistent,return,switch,try,while}, %设定关键词列表
+        keywordstyle=\color{blue},  % 关键词为蓝色
+        commentstyle=\color{dkgreen},       % 注释为绿色
+        stringstyle=\color{red},    % 字符串为红色
+        %basicstyle=\xiaosi\monaco, % 基本字体的字号
+        basicstyle=\xiaosi\times, % 基本字体的字号
+        breaklines=true,            % 自动将长代码行换行排版
+        breakatwhitespace=true,     % 断行只在空格处
+        extendedchars=false,        % 解决代码跨页时，章节标题页眉等汉字不显示问题
+        showspaces=false,           % 不显示空格
+        showstringspaces=true,      % 字符串中显示空格
+        showtabs=false,             % 不显示TAB键
+        tabsize=4,                  % TAB被当成4个空格
+        frame=l,                    % 显示边框
+        numbers=left,               % 显示行号
+        numberstyle=\tiny,          % 行号字体为tiny
+        numbersep=9pt,              % 行号垂直位置
+        numberstyle=\normalsize,  % 行号字体的字号
+        stepnumber=1,               % 行号显示的步长
+        keywordstyle=\color{blue}\bfseries, % 特殊代码高亮蓝色加粗
+        backgroundcolor=\color{white},      % 背景色 需要 \usepackage{color}
+        escapeinside={/*@}{@*/}     % 添加注释，暂时离开
+        }
+\renewcommand{\lstlistingname}{CODE}
+\lstloadlanguages{% Check Dokumentation for further languages ...
+        MATLAB
+}
+
+\pagestyle{fancy}
+\fancypagestyle{plain}
+
+\def\yemeiclean
+{
+	\fancyhead{}                        % 清空页眉
+	\renewcommand{\headrulewidth}{0pt}       %把页眉线的宽度设为零，即去掉页眉线	
+}
+
+
+\newcommand{\cankao}[1]{$^{\mbox{\protect \scriptsize \cite{#1}}}$}% 修改引用文件样式
+\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
