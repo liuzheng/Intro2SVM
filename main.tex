@@ -177,8 +177,111 @@ f(x)=w^Tx+b
 
 然与此同时，问题就出来了。上述定义的函数间隔虽然可以表示分类预测的正确性和确信度，但在选择分类超平面时，只有函数间隔还远远不够，因为如果成比例的改变$w$和$b$，如将他们改变为$2w$和$2b$，虽然此时超平面没有改变，但函数间隔的值$f(x)$却变成了原来的$2$倍。
 
-其实，我们可以对法向量w加些约束条件，使其表面上看起来规范化，如此，我们很快又将引出真正定义点到超平面的距离--几何间隔geometrical margin的概念（很快你将看到，几何间隔就是函数间隔除以个$\|w\|$，即$yf(x) / \|w\|$）。
+其实，我们可以对法向量$w$加些约束条件，使其表面上看起来规范化，如此，我们很快又将引出真正定义点到超平面的距离--几何间隔geometrical margin的概念（很快你将看到，几何间隔就是函数间隔除以个$\|w\|$，即$yf(x) / \|w\|$）。
 
+\subsubsection{点到超平面的距离定义：几何间隔Geometrical margin}
+\begin{figure}[H]
+\centering
+\includegraphics[width=13cm]{fig5}
+\end{figure}
+
+在给出几何间隔的定义之前，咱们首先来看下，如上图所示，对于一个点 $x$ ，令其垂直投影到超平面上的对应的为 $x_0$ ，由于 $w$ 是垂直于超平面的一个向量，$\gamma$为样本$x$到分类间隔的距离，我们有
+
+\begin{equation}
+x=x_0+\gamma\frac{w}{\|w\|}
+\end{equation}
+
+又由于$ x_0$ 是超平面上的点，满足 $f(x_0)=0$ ，代入超平面的方程即可算出： 
+\begin{equation}
+\gamma=\frac{w^Tx+b}{\|w\|}=\frac{f(x)}{\|w\|}
+\end{equation}
+（有的书上会写成把$\|w\|$ 分开相除的形式，如本文参考文献及推荐阅读条目11，其中，$\|w\|$为$w$的二阶泛数）
+
+不过这里的$\gamma$是带符号的，我们需要的只是它的绝对值，因此类似地，也乘上对应的类别 $y$即可，因此实际上我们定义 几何间隔geometrical margin 为(注：别忘了，上面$\widehat{\gamma}$的定义，$\widehat{\gamma}=y(w^Tx+b)=yf(x)$ )：
+\begin{equation}
+  \widetilde{\gamma}=y\gamma=\frac{\widehat{\gamma}}{\|w\|}
+\end{equation}
+\begin{center}
+（代入相关式子可以得出：yi*(w/||w|| + b/||w||)）
+\end{center}
+
+正如本文评论下读者popol1991留言：函数间隔$y*(wx+b)=y*f(x)$实际上就是$|f(x)|$，只是人为定义的一个间隔度量；而几何间隔$|f(x)|/\|w\|$才是直观上的点到超平面距离。
+
+想想二维空间里的点到直线公式：假设一条直线的方程为$ax+by+c=0$,点$P$的坐标是$(x_0,y_0)$，则点到直线距离为$|ax_0+by_0+c|/sqrt(a^2+b^2)$。如下图所示：
+
+点到平面的距离
+
+若点坐标为$(x_0.y_0.z_0)$，平面为$Ax+By+Cz+D=0$，则点到平面的距离为：
+
+\begin{equation}
+  d=\left|\frac{Ax_0+By_0+Cz_0+D}{\sqrt{A^2+B^2+C^2}}\right|
+\end{equation}
+
+那么如果用向量表示，设$w=(a,b)$,$f(x)=wx+c$,那么这个距离正是$|f(p)|/\|w\|$。
+
+\subsection{最大间隔分类器Maximum Margin Classifier的定义}
+
+于此，我们已经很明显的看出，函数间隔functional margin 和 几何间隔geometrical margin 相差一个的缩放因子。按照我们前面的分析，对一个数据点进行分类，当它的 margin 越大的时候，分类的 confidence 越大。对于一个包含$ n $个点的数据集，我们可以很自然地定义它的 margin 为所有这$ n $个点的 margi$n $值中最小的那个。于是，为了使得分类的 confidence 高，我们希望所选择的超平面hyper plane 能够最大化这个 margin 值。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=13cm]{fig6}
+\end{figure}
+通过上节，我们已经知道：
+
+1、functional margin 明显是不太适合用来最大化的一个量，因为在 hyper plane 固定以后，我们可以等比例地缩放 $w$ 的长度和$ b $的值，这样可以使得$f(x)=w^Tx+b$的值任意大，亦即 functional margin$\widehat{\gamma}$可以在 hyper plane 保持不变的情况下被取得任意大，
+
+2、而 geometrical margin 则没有这个问题，因为除上了$\|w\|$这个分母，所以缩放 $w$ 和 $b$ 的时候的值是不会改变的，它只随着 hyper plane 的变动而变动，因此，这是更加合适的一个 margin 。
+
+这样一来，我们的 maximum margin classifier 的目标函数可以定义为：
+
+\begin{equation}
+  \max\widetilde{\gamma}
+\end{equation}
+
+当然，还需要满足一些条件，根据 margin 的定义，我们有
+\begin{equation}
+  y_i(w^Tx_i+b)=\widehat{\gamma_i}\geq\widehat{\gamma},i=1,\cdots,n
+\end{equation}
+
+其中$\widehat{\gamma}=\widetilde{\gamma}\|w\|$ (等价于$\widetilde{\gamma}=\gamma/\|w\|$，故有稍后的$\widehat{\gamma}  =1$ 时，$\widetilde{\gamma}  = 1 / \|w\|$)，处于方便推导和优化的目的，我们可以令$\widehat{\gamma}=1$(对目标函数的优化没有影响，至于为什么，请见本文评论下第42楼回复) ，此时，上述的目标函数$\widetilde{\gamma}$转化为(其中，s.t.，即subject to的意思，它导出的是约束条件)：
+
+\begin{equation}
+  \max\frac{1}{\|w\|},w.t.,y_i(w^Tx_i+b)\geq1,i=1,\cdots,n
+\end{equation}
+
+通过求解这个问题，我们就可以找到一个 margin 最大的 classifier ，如下图所示，中间的红色线条是 Optimal Hyper Plane ，另外两条线到红线的距离都是等于$\widetilde{\gamma}$的($\widetilde{\gamma}$便是上文所定义的geometrical margin，当令$\widehat{\gamma}=1$时，$\widetilde{\gamma}$便为$1/\|w\|$，而我们上面得到的目标函数便是在相应的约束条件下，要最大化这个$1/\|w\|$值)：
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=13cm]{fig7}
+\end{figure}
+通过最大化 margin ，我们使得该分类器对数据进行分类时具有了最大的 confidence，从而设计决策最优分类超平面。
+
+\subsection{到底什么是Support Vector}
+上节，我们介绍了Maximum Margin Classifier，但并没有具体阐述到底什么是Support Vector，本节，咱们来重点阐述这个概念。咱们不妨先来回忆一下上节1.4节最后一张图：
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=13cm]{fig8}
+\end{figure}
+
+可以看到两个支撑着中间的 gap 的超平面，它们到中间的纯红线separating hyper plane 的距离相等，即我们所能得到的最大的 geometrical margin$\widetilde{\gamma}$，而“支撑”这两个超平面的必定会有一些点，而这些“支撑”的点便叫做支持向量Support Vector。
+
+或亦可看下来自此PPT中的一张图，Support Vector便是那蓝色虚线和粉红色虚线上的点：
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=13cm]{fig9}
+\end{figure}
+
+很显然，由于这些 supporting vector 刚好在边界上，所以它们满足$y(w^Tx+b)=1$（还记得我们把 functional margin 定为 1 了吗？上节中：“处于方便推导和优化的目的，我们可以令$\widehat{\gamma}=1$”），而对于所有不是支持向量的点，也就是在“阵地后方”的点，则显然$y(w^Tx+b)>1$有。当然，除了从几何直观上之外，支持向量的概念也可以从下文优化过程的推导中得到。
+
+OK，到此为止，算是了解到了SVM的第一层，对于那些只关心怎么用SVM的朋友便已足够，不必再更进一层深究其更深的原理。
+
+\section{深入SVM}
+\subsection{从线性可分到线性不可分}
+\subsubsection{从原始问题到对偶问题的求解}
+虽然上文1.4节给出了目标函数，却没有讲怎么来求解。现在就让我们来处理这个问题。回忆一下之前得到的目标函数（subject to导出的则是约束条件）：
 
 %\section{公式？！}
 %\$ Equation \$ = $ Equation $
@@ -188,7 +291,7 @@ f(x)=w^Tx+b
 %
 %\href{}{手写}
 %
-\input{body/equation}
+%\input{body/equation}
 %
 %
 %
