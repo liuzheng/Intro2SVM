@@ -282,9 +282,176 @@ OK，到此为止，算是了解到了SVM的第一层，对于那些只关心怎
 \subsection{从线性可分到线性不可分}
 \subsubsection{从原始问题到对偶问题的求解}
 虽然上文1.4节给出了目标函数，却没有讲怎么来求解。现在就让我们来处理这个问题。回忆一下之前得到的目标函数（subject to导出的则是约束条件）：
+\begin{equation}
+  \max\frac{1}{\|w\|}\,s.t.,y_i(w^Tx_i+b)\geq1,i=1,\cdots,n
+\end{equation}
 
+由于求$\frac{1}{\|w\|}$的最大值相当于求$\frac{1}{2}\|w\|^2$的最小值，所以上述问题等价于（$w$由分母变成分子，从而也有原来的$\max$问题变为$\min$问题，很明显，两者问题等价）：
+\begin{equation}
+  \min\frac{1}{2}\|w\|^2\,s.t.,y_i(w^Tx_i+b)\geq1,i=1,\cdots,n
+\end{equation}
+\begin{itemize}
+\item 转化到这个形式后，我们的问题成为了一个凸优化问题，或者更具体的说，因为现在的目标函数是二次的，约束条件是线性的，所以它是一个凸二次规划问题。这个问题可以用任何现成的 QP (Quadratic Programming) 的优化包进行求解，归结为一句话即是：在一定的约束条件下，目标最优，损失最小；
+\item 但虽然这个问题确实是一个标准的 QP 问题，但是它也有它的特殊结构，通过 Lagrange Duality 变换到对偶变量 (dual variable) 的优化问题之后，可以找到一种更加有效的方法来进行求解，而且通常情况下这种方法比直接使用通用的 QP 优化包进行优化要高效得多。
+\end{itemize}
+
+也就说，除了用解决QP问题的常规方法之外，还可以通过求解对偶问题得到最优解，这就是线性可分条件下支持向量机的对偶算法，这样做的优点在于：一者对偶问题往往更容易求解；二者可以自然的引入核函数，进而推广到非线性分类问题。
+
+至于上述提到，关于什么是Lagrange duality？简单地来说，通过给每一个约束条件加上一个 Lagrange multiplier(拉格朗日乘值)，即引入拉格朗日乘子$\alpha$如此我们便可以通过拉格朗日函数将约束条件融和到目标函数里去(也就是说把条件融合到一个函数里头，现在只用一个函数表达式便能清楚的表达出我们的问题)：
+\begin{equation}
+  \mathcal{L}(w,b,\alpha)=\frac{1}{2}\|w\|^2-\sum_{i=1}^n\alpha_i\left(y_i(w^Tx_i+b)-1\right)
+\end{equation}
+然后我们令
+\begin{equation}
+  \theta(w)=\max_{\alpha_i\geq0}\mathcal{L}(w,b,\alpha)
+\end{equation}
+
+容易验证，当某个约束条件不满足时，例如$y_i(w^Tx_i+b)<1$，那么我们显然有$\theta(w)=\inf$（只要令$\alpha_i=\inf$即可）。而当所有约束条件都满足时，则有$\theta(w)=\frac{1}{2}\|w\|^2$，亦即我们最初要最小化的量。因此，在要求约束条件得到满足的情况下最小化$\frac{1}{2}\|w\|^2$，实际上等价于直接最小化$\theta(w)$（当然，这里也有约束条件，就是$\alpha_i\geq0,i=1,\cdots,n$），因为如果约束条件没有得到满足，$\theta{w}$等于无穷大，自然不会是我们所要求的最小值。具体写出来，我们现在的目标函数变成了：
+\begin{equation}
+  \min_{w,b}\theta(w)=\min_{w,b}\max_{\alpha_i\geq0}\mathcal{L}(w,b,\alpha)=p^*
+\end{equation}
+
+ 这里用$p^*$表示这个问题的最优值，这个问题和我们最初的问题是等价的。不过，现在我们来把最小和最大的位置交换一下（稍后，你将看到，当下面式子满足了一定的条件之后，这个式子$d$ 便是上式$P$ 的对偶形式表示）：
+ 
+\begin{equation}
+  \max_{\alpha_i\geq0}\min_{w,b}\mathcal{L}(w,b,\alpha)=d^*
+\end{equation}
+
+当然，交换以后的问题不再等价于原问题，这个新问题的最优值用$d^*$来表示。并且，我们有$d^*\leq p^*$ ，这在直观上也不难理解，最大值中最小的一个总也比最小值中最大的一个要大吧！  总之，第二个问题的最优值$d^*$在这里提供了一个第一个问题的最优值$p^*$的一个下界，在满足某些条件的情况下，这两者相等，这个时候我们就可以通过求解第二个问题来间接地求解第一个问题。
+
+也就是说，下面我们将先求$L$ 对$w$、$b$的极小，再求$L$ 对$\alpha$的极大。而且，之所以从$\min\max$的原始问题$p^*$，转化为$\max\min$的对偶问题$d^*$，一者因为$d^*$是$p^*$的近似解，二者，转化为对偶问题后，更容易求解。
+
+\subsubsection{KKT条件}
+与此同时，上段说“在满足某些条件的情况下”，这所谓的“满足某些条件”就是要满足KKT条件。那KKT条件的表现形式是什么呢？据维基百科：KKT 条件的介绍，一般地，一个最优化数学模型能够表示成下列标准形式：
+\begin{equation}
+\begin{split}
+  \min.f(x)\\
+  s.t. h_j(x)&=0,j=1,\cdots,p,\\
+  g_k(x)&\leq0,k=1,\cdots,q,\\
+  x\in X&\subset\Re^n
+\end{split}
+\end{equation}
+其中，$f(x)$是需要最小化的函数，$h(x)$是等式约束，$g(x)$是不等式约束，$p$和$q$分别为等式约束和不等式约束的数量。同时，我们得明白以下两个定理：
+\begin{itemize}
+  \item 凸优化的概念：$\mathcal{X} \subset \mathbb{R}^n$ 为一凸集， $f:\mathcal{X}\to \mathbb{R}$ 为一凸函数。凸优化就是要找出一点 $x^\ast \in \mathcal{X}$ ，使得每一 $x \in \mathcal{X} $满足 $f(x^\ast)\le f(x) $。
+  \item KKT条件的意义：它是一个非线性规划（Nonlinear Programming）问题能有最优化解法的必要和充分条件。
+\end{itemize}
+
+那到底什么是所谓Karush-Kuhn-Tucker条件呢？KKT条件就是指上面最优化数学模型的标准形式中的最小点 $x^*$ 必须满足下面的条件：
+
+\begin{equation}
+  \begin{split}
+  1.\;h_j(x_*)=0,j=1,\cdots,p,g_k(x_*)\leq0,k=1,\cdots,q,\\
+  2.\;\nabla f(x_*)+\sum_{j=1}^p\lambda_j\nabla h_j(x_*)+\sum_{k=1}^q\mu_k\nabla g_k(x_*)=0,\\
+  \lambda\neq0m\mu_k\geq0,\mu_kg_k(x_*)=0
+\end{split}
+\end{equation}
+经过论证，我们这里的问题是满足 KKT 条件的（首先已经满足Slater condition，再者$f$和$g_i$也都是可微的，即$L$对$w$和$b$都可导），因此现在我们便转化为求解第二个问题。也就是说，现在，咱们的原问题通过满足一定的条件，已经转化成了对偶问题。而求解这个对偶学习问题，分为3个步骤，首先要让L(w，b，a) 关于 w 和 b 最小化，然后求对α的极大，最后利用SMO算法求解对偶因子。
+
+\subsubsection{对偶问题求解的3个步骤}
+（1）、首先固定，要让$ L$ 关于 $w$ 和 $b$ 最小化，我们分别对$w$，$b$求偏导数，即令 $\partial\mathcal{L}/\partial w$ 和 $\partial\mathcal{L}/\partial b$ 等于零（对$w$求导结果的解释请看本文评论下第45楼回复）：
+\begin{equation}
+  \begin{split}
+    \frac{\mathcal{L}}{\partial w}= &\Rightarrow w=\sum_{i=1}^n\alpha_iy_ix_i\\
+    \frac{\mathcal{L}}{\partial b}= &\Rightarrow w=\sum_{i=1}^n\alpha_iy_i=0
+  \end{split}
+\end{equation}
+
+以上结果代回上述的$\mathcal{L}$：
+\begin{equation}
+  \mathcal{L}(w,b,\alpha)=\frac{1}{2}\|w\|^2-\sum_{i=1}^n\alpha_i\left(y_i(w^Tx_i+b)-1\right)
+\end{equation}
+得到：
+\begin{equation}
+  \begin{split}
+    \mathcal{L}(w,b,\alpha)&=\frac{1}{2}\sum_{i,j=1}^n\alpha_i\alpha_jy_iy_jx_i^Tx_j-\sum_{i,j=1}^n\alpha_i\alpha_jy_iy_jx_i^Tx_j-\sum_{i=1}^n\alpha_iy_i+\sum_{i=1}^n\alpha_i\\
+    &=\sum_{i,j=1}^n\alpha_i\alpha_jy_iy_jx_i^Tx_j
+  \end{split}
+\end{equation}
+
+提醒：有读者可能会问上述推导过程如何而来？说实话，其具体推导过程是比较复杂的，如下图所示：
+\begin{equation}
+  \begin{split}
+    \mathcal{L}(w,b,\alpha)&=\frac{1}{2}\|w\|^2-\sum_{i=1}^m\alpha_i[y^{(i)}(w^Tx^{(i)}+b)-1]\\
+    &=\frac{1}{2}w^Tw-\sum_{i=1}^m\alpha_iy^{(i)}w^Tx^{(i)}-\sum_{i=1}^m\alpha_iy^{(i)}b+\sum_{i=1}^m\alpha_i\\
+    &=\frac{1}{2}w^T\sum_{i=1}^m\alpha_iy^{(i)}x^{(i)}-\sum_{i=1}^m\alpha_iy^{(i)}w^Tx^{(i)}-\sum_{i=1}^m\alpha_iy^{(i)}b+\sum_{i=1}^m\alpha_i\\
+    &=\frac{1}{2}w^T\sum_{i=1}^m\alpha_iy^{(i)}x^{(i)}-w^T\sum_{i=1}^m\alpha_iy^{(i)}x^{(i)}-\sum_{i=1}^m\alpha_iy^{(i)}b+\sum_{i=1}^m\alpha_i\\
+    &=-\frac{1}{2}w^T\sum_{i=1}^m\alpha_iy^{(i)}x^{(i)}-\sum_{i=1}^m\alpha_iy^{(i)}b+\sum_{i=1}^m\alpha_i\\
+    &=-\frac{1}{2}w^T\sum_{i=1}^m\alpha_iy^{(i)}x^{(i)}-b\sum_{i=1}^m\alpha_iy^{(i)}+\sum_{i=1}^m\alpha_i\\
+    &=-\frac{1}{2}\left(\sum_{i=1}^m\alpha_iy^{(i)}x^{(i)}\right)^T\sum_{i=1}^m\alpha_iy^{(i)}x^{(i)}-b\sum_{i=1}^m\alpha_iy^{(i)}+\sum_{i=1}^m\alpha_i\\
+  &=-\frac{1}{2}\sum_{i=1}^m\alpha_iy^{(i)}\left(x^{(i)}\right)^T\sum_{i=1}^m\alpha_iy^{(i)}x^{(i)}-b\sum_{i=1}^m\alpha_iy^{(i)}+\sum_{i=1}^m\alpha_i\\
+  &=-\frac{1}{2}\sum_{i,j=1}^m\alpha_iy^{(i)}\left(x^{(i)}\right)^T\alpha_jy^{(j)}x^{(j)}-b\sum_{i=1}^m\alpha_iy^{(i)}+\sum_{i=1}^m\alpha_i\\
+  \end{split}
+\end{equation}
+
+最后，得到：
+\begin{equation}
+  \begin{split}
+    \mathcal{L}(w,b,\alpha)&=\frac{1}{2}\sum_{i,j=1}^n\alpha_i\alpha_jy_iy_jx_i^Tx_j-\sum_{i,j=1}^n\alpha_i\alpha_jy_iy_jx_i^Tx_j-b\sum_{i=1}^n\alpha_iy_i+\sum_{i=1}^n\alpha_i\\
+    &=\sum_{i=1}^n\alpha_i-\frac{1}{2}\sum_{i,j=1}^n\alpha_i\alpha_jy_iy_jx_i^Tx_j
+  \end{split}
+\end{equation}
+
+如 jerrylead所说：“倒数第4步”推导到“倒数第3步”使用了线性代数的转置运算，由于ai和yi都是实数，因此转置后与自身一样。“倒数第3步”推导到“倒数第2步”使$(a+b+c+…(a+b+c+\cdots)=aa+ab+ac+ba+bb+bc+\cdots$的乘法运算法则。最后一步是上一步的顺序调整。
+
+  从上面的最后一个式子，我们可以看出，此时的拉格朗日函数只包含了一个变量，那就是$\alpha_i$，然后下文的第2步，求出了$\alpha_i$便能求出$w$，和$b$，由此可见，上文第1.2节提出来的核心问题：分类函数$f(x)=w^Tx+b$也就可以轻而易举的求出来了。
+
+（2）、求对$\alpha$的极大，即是关于对偶问题的最优化问题，从上面的式子得到：
+
+(不得不提醒下读者：经过上面第一个步骤的求$w$和$b$，得到的拉格朗日函数式子已经没有了变量$w$，$b$，只有$\alpha$，而反过来，求得的$\alpha$将能导出$w$，$b$的解，最终得出分离超平面和分类决策函数。为何呢？因为如果求出了$\alpha_i$，根据$w=\sum_{i=1}^m\alpha_iy^{(i)}x^{(i)}$，即可求出$w$。然后通过
+$b^*=-\frac{\max_{i:y^{(i)}=-1}w^{*T}x^{(i)}+\min_{i:y^{(i)}=1}w^{*T}x^{(i)}}{2}$，即可求出$b$ )
+\begin{equation}
+  \begin{split}
+    \max_\alpha\sum_{i=1}^n\alpha_i-\frac{1}{2}\sum_{i,j=1}^n\alpha_i\alpha_jy_iy_jx_i^Tx_j\\
+    s.t,\alpha_i\geq0,i=1,\cdots,n\\
+   \sum_{i=1}^n\alpha_iy_i=0
+  \end{split}
+\end{equation}
+如前面所说，这个问题有更加高效的优化算法，即我们常说的SMO算法。
+\subsubsection{序列最小最优化SMO算法}
+细心的读者读至上节末尾处，怎么拉格朗日乘子的值可能依然心存疑惑。实际上，关于的求解可以用一种快速学习算法即SMO算法，这里先简要介绍下。
+
+OK，当：
+\begin{equation}
+  \begin{split}
+    \max_\alpha W(\alpha)=\sum_{i=1}^m\alpha_i-\frac{1}{2}\sum_{i,j=1}^my^{(i)}y^{(j)}\alpha_i\alpha_j\langle x^{(i)},x^{(j)}\rangle\\
+    s.t.\; 0\leq\alpha_i\leq C,i=1,\cdots,m\\
+    \sum_{i=1}^m\alpha_iy^{(i)}=0
+  \end{split}
+\end{equation}
+要解决的是在参数$\{\alpha_1,\alpha_2,\cdots,\alpha_n\}$上求最大值$W$的问题，至于$x^{(i)}$和$y^{(i)}$都是已知数（其中$C$是一个参数，用于控制目标函数中两项（“寻找 margin 最大的超平面”和“保证数据点偏差量最小”）之间的权重。和上文最后的式子对比一下，可以看到唯一的区别就是现在 dual variablei$\alpha$多了一个上限$C$，关于$C$的具体由来请查看下文第2.3节）。
+
+要了解这个SMO算法是如何推导的，请跳到下文第3.5节、SMO算法。
+
+\subsubsection{线性不可分的情况}
+OK，为过渡到下节2.2节所介绍的核函数，让我们再来看看上述推导过程中得到的一些有趣的形式。首先就是关于我们的 hyper plane ，对于一个数据点$ x$ 进行分类，实际上是通过把 $x$ 带入到$f(x)=w^Tx+b$算出结果然后根据其正负号来进行类别划分的。而前面的推导中我们得到 
+
+\begin{equation}
+  w=\sum_{i=1}^n\alpha_iy_ix_i
+\end{equation}
+
+因此分类函数为：
+\begin{equation}
+  \begin{split}
+    f(x)&=\left(\sum_{i=1}^n\alpha_iy_ix_i\right)^Tx+b\\
+    &=\sum_{i=1}^n\alpha_iy_i\langle x_i,x\rangle+b
+    \end{split}
+  \end{equation}
+这里的形式的有趣之处在于，对于新点$ x$的预测，只需要计算它与训练数据点的内积即可（$\langle*,*\rangle$表示向量内积），这一点至关重要，是之后使用 Kernel 进行非线性推广的基本前提。此外，所谓 Supporting Vector 也在这里显示出来——事实上，所有非Supporting Vector 所对应的系$\alpha$数都是等于零的，因此对于新点的内积计算实际上只要针对少量的“支持向量”而不是所有的训练数据即可。
+
+为什么非支持向量对应的$\alpha$等于零呢？直观上来理解的话，就是这些“后方”的点——正如我们之前分析过的一样，对超平面是没有影响的，由于分类完全有超平面决定，所以这些无关的点并不会参与分类问题的计算，因而也就不会产生任何影响了。
+
+回忆一下我们2.1.1节中通过 Lagrange multiplier得到的目标函数：
+\begin{equation}
+  \max_{\alpha_i\geq0}\mathcal{L}(w,b,\alpha)=\max_{\alpha_i\geq0}\frac{1}{2}\|w\|^2-\sum_{i=1}^n\alpha_i\left(y_i(w^Tx_i+b)-1\right)
+\end{equation}
+
+注意到如果 $x_i$ 是支持向量的话，上式中红颜色的部分是等于 $0$ 的（因为支持向量的 functional margin 等于 1 ），而对于非支持向量来说，functional margin 会大于$ 1$ ，因此红颜色部分是大于零的，而$\alpha_i$又是非负的，为了满足最大化，$\alpha_i$必须等于 $0$ 。这也就是这些非Supporting Vector 的点的局限性。 
+
+从1.5节到上述所有这些东西，便得到了一个maximum margin hyper plane classifier，这就是所谓的支持向量机（Support Vector Machine）。当然，到目前为止，我们的 SVM 还比较弱，只能处理线性的情况，不过，在得到了对偶dual 形式之后，通过 Kernel 推广到非线性的情况就变成了一件非常容易的事情了(相信，你还记得本节开头所说的：“通过求解对偶问题得到最优解，这就是线性可分条件下支持向量机的对偶算法，这样做的优点在于：一者对偶问题往往更容易求解；二者可以自然的引入核函数，进而推广到非线性分类问题”)。
+
+\subsection{核函数Kernel}
 %\section{公式？！}
-%\$ Equation \$ = $ Equation $
 %
 %\href{http://www.sciweavers.org/free-online-latex-equation-editor}{手点}
 %
