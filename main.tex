@@ -620,13 +620,445 @@ OK，为过渡到下节2.2节所介绍的核函数，让我们再来看看上述
 \item 此时，核函数就隆重登场了，核函数的价值在于它虽然也是讲特征进行从低维到高维的转换，但核函数绝就绝在它事先在低维上进行计算，而将实质上的分类效果表现在了高维上，也就如上文所说的避免了直接在高维空间中的复杂计算。
 \end{enumerate}
 
+ 经过前面内容的讲解，我们已经知道，当把内积$\langle x_i,x_j\rangle$变成$\langle\Phi(x_i),\Phi(x_j)\rangle$之后，求$\langle\Phi(x_i),\Phi(x_j)\rangle$将有两种方法：
+ \begin{enumerate}[1.~]
+   \item 先找到这种映射，然后将输入空间中的样本映射到新的空间中，最后在新空间中去求内积$\langle\Phi(x_i),\Phi(x_j)\rangle$。以多项式$x_1+x_2+x_1^2+x_2^2+c=0$ 为例，对其进行变换，$c_1=x_1$，$c_2=x_2$，$c_3=x_1^2$，$c_4=x_2^2$，得到：$c_1+c_2+c_3+c_4+c=0$，也就是说通过把输入空间从二维向四维映射后，样本由线性不可分变成了线性可分，但是这种转化带来的直接问题是维度变高了，这意味着，首先可能导致后续计算变复杂，其次可能出现维度之咒，对于学习器而言就是：特征空间维数可能最终无法计算，而它的泛化能力(学习器对训练样本以外数据的适应性)会随着维度的增长而大大降低，这也违反了“奥坎姆的剃刀”，最终可能会使得积$\langle\Phi(x_i),\Phi(x_j)\rangle$无法求出，于是也就失去了这种转化的优势了；
+   \item 或者是找到某种方法，它不需要显式的将输入空间中的样本映射到新的空间中而能够在输入空间中直接计算出内积$\langle\Phi(x_i),\Phi(x_j)\rangle$。它其实是对输入空间向高维空间的一种隐式映射，它不需要显式的给出那个映射，在输入空间就可以计算$\langle\Phi(x_i),\Phi(x_j)\rangle$，这就是传说中的核函数方法。
+\end{enumerate}
+
+最后引用这里的一个例子举例说明下核函数解决非线性问题的直观效果。
+
+假设现在你是一个农场主，圈养了一批羊群，但为预防狼群袭击羊群，你需要搭建一个篱笆来把羊群围起来。但是篱笆应该建在哪里呢？你很可能需要依据牛群和狼群的位置建立一个“分类器”，比较下图这几种不同的分类器，我们可以看到SVM完成了一个很完美的解决方案。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=13cm]{fig15}
+\end{figure}
+
+这个例子从侧面简单说明了SVM使用非线性分类器的优势，而逻辑模式以及决策树模式都是使用了直线方法。
+
+OK，不再做过多介绍了，对核函数有进一步兴趣的，还可以看看此文。
+
+\subsection{使用松弛变量处理 outliers 方法}
+在本文第一节最开始讨论支持向量机的时候，我们就假定，数据是线性可分的，亦即我们可以找到一个可行的超平面将数据完全分开。后来为了处理非线性数据，在上文2.2节使用 Kernel 方法对原来的线性 SVM 进行了推广，使得非线性的的情况也能处理。虽然通过映射$\phi(\cdot)$  将原始数据映射到高维空间之后，能够线性分隔的概率大大增加，但是对于某些情况还是很难处理。
+
+例如可能并不是因为数据本身是非线性结构的，而只是因为数据有噪音。对于这种偏离正常位置很远的数据点，我们称之为 outlier ，在我们原来的 SVM 模型里，outlier 的存在有可能造成很大的影响，因为超平面本身就是只有少数几个 support vector 组成的，如果这些 support vector 里又存在 outlier 的话，其影响就很大了。例如下图：
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=13cm]{fig16}
+\end{figure}
+
+用黑圈圈起来的那个蓝点是一个 outlier ，它偏离了自己原本所应该在的那个半空间，如果直接忽略掉它的话，原来的分隔超平面还是挺好的，但是由于这个 outlier 的出现，导致分隔超平面不得不被挤歪了，变成途中黑色虚线所示（这只是一个示意图，并没有严格计算精确坐标），同时 margin 也相应变小了。当然，更严重的情况是，如果这个 outlier 再往右上移动一些距离的话，我们将无法构造出能将数据分开的超平面来。
+
+为了处理这种情况，SVM 允许数据点在一定程度上偏离一下超平面。例如上图中，黑色实线所对应的距离，就是该 outlier 偏离的距离，如果把它移动回来，就刚好落在原来的超平面上，而不会使得超平面发生变形了。
+
+插播下一位读者@Copper\_PKU的理解：“换言之，在有松弛的情况下outline点也属于支持向量SV，同时，对于不同的支持向量，拉格朗日参数的值也不同，如此篇论文《Large Scale Machine Learning》中的下图所示：
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=13cm]{fig17}
+\end{figure}
+
+ 对于远离分类平面的点值为0；对于边缘上的点值在$[0, 1/L]$之间，其中，L为训练数据集个数，即数据集大小；对于outline数据和内部的数据值为1/L。更多请参看本文文末参考条目第51条。”
+
+ OK，继续回到咱们的问题。我们，原来的约束条件为：
+ \begin{equation}
+   y_i(w^Tx_i+b)\geq1,\;i=1,\cdots,n
+ \end{equation}
+现在考虑到outlier问题，约束条件变成了：
+\begin{equation}
+   y_i(w^Tx_i+b)\geq1-\xi_i,\;i=1,\cdots,n
+ \end{equation}
+
+ 其中$\xi_i\geq0$称为松弛变量 (slack variable) ，对应数据点允许偏离的 functional margin 的量。当然，如果我们运行$\xi_i$任意大的话，那任意的超平面都是符合条件的了。所以，我们在原来的目标函数后面加上一项，使得这些$\xi_i$的总和也要最小：
+ \begin{equation}
+   \min\frac{1}{2}\|w\|^2+C\sum_{i=1}^n\xi_i
+ \end{equation}
+
+其中 $C$ 是一个参数，用于控制目标函数中两项（“寻找 margin 最大的超平面”和“保证数据点偏差量最小”）之间的权重。注意，$\xi$其中  是需要优化的变量（之一），而 $C$ 是一个事先确定好的常量。完整地写出来是这个样子：
+\begin{equation}
+  \begin{split}
+   \min\frac{1}{2}\|w\|^2+C\sum_{i=1}^n\xi_i\\
+   s.t.,y_i(w^T+b)\geq1-\xi_i,i=1,\cdots,n\\
+   \xi_i\geq0,i=1,\cdots,n
+ \end{split}
+ \end{equation}
+  
+ 用之前的方法将限制或约束条件加入到目标函数中，得到新的拉格朗日函数，如下所示：
+ \begin{equation}
+   \mathcal{L}(w,b,\xi,\alpha,r)=\frac{1}{2}\|w\|^2+C\sum_{i=1}^n\xi_i-\sum_{i=1}^n\alpha_i\left(y_i(w^Tx_i+b)-1+\xi_i\right)-\sum_{i=1}^nr_i\xi_i
+ \end{equation}
+
+ 分析方法和前面一样，转换为另一个问题之后，我们先让$\mathcal{L}$针对$w$、$b$和$\xi$最小化：
+ \begin{equation}
+   \begin{split}
+   \frac{\partial\mathcal{L}}{\partial w} = 0 &\Rightarrow w=\sum_{i=1}^n\alpha _iy_ix_i\\
+   \frac{\partial\mathcal{L}}{\partial b} = 0 &\Rightarrow \sum_{i=1}^n\alpha _iy_i=0\\
+   \frac{\partial\mathcal{L}}{\partial \xi_i} = 0 &\Rightarrow C-\alpha-i-r_i=0,i=1,\cdots,n
+ \end{split}
+\end{equation}
+
+将 $w$ 带回 $\mathcal{L}$ 并化简，得到和原来一样的目标函数：
+\begin{equation}
+\max_\alpha\sum_{i=1}^n\alpha_i-\frac{1}{2}\sum_{i,j=1}^n\alpha_i\alpha_jy_iy_j\langle x_i,x_j\rangle
+\end{equation}
+
+  不过，由于我们得到$C-\alpha_i-r_i=0$而又有$r_i\geq0$（作为 Lagrange multiplier 的条件），因此有$\alpha_i\leq C$，所以整个 dual 问题现在写作：
+\begin{equation}
+  \begin{split}
+    \max_\alpha\sum_{i=1}^n\alpha_i-\frac{1}{2}\sum_{i,j=1}^n\alpha_i\alpha_jy_iy_j\langle x_i,x_j\rangle\\
+    s.t.,0\leq\alpha\alpha_i\leq C,i=1,\cdots,n\\
+    \sum_{i=1}^n\alpha_iy_i=0
+  \end{split}
+\end{equation}
+
+把前后的结果对比一下（错误修正：图中的Dual formulation中的Minimize应为maxmize）：
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=13cm]{fig18}
+\end{figure}
+
+可以看到唯一的区别就是现在 dual variable $\alpha$ 多了一个上限 $C$ 。而 Kernel 化的非线性形式也是一样的，只要把$\langle x_i,x_j\rangle$换成$k(x_i,x_j)$即可。这样一来，一个完整的，可以处理线性和非线性并能容忍噪音和 outliers 的支持向量机才终于介绍完毕了。
+
+行文至此，可以做个小结，不准确的说，SVM它本质上即是一个分类方法，用$w^T+b$定义分类函数，于是求$w$、$b$，为寻最大间隔，引出$1/2\|w\|^2$，继而引入拉格朗日因子，化为对拉格朗日乘子a的求解（求解过程中会涉及到一系列最优化或凸二次规划等问题），如此，求$w.b$与求$a$等价，而$a$的求解可以用一种快速学习算法SMO，至于核函数，是为处理非线性情况，若直接映射到高维计算恐维度爆炸，故在低维计算，等效高维表现。
+
+OK，理解到这第二层，已经能满足绝大部分人一窥SVM原理的好奇心，然对于那些想在证明层面理解SVM的则还很不够，但进入第三层理解境界之前，你必须要有比较好的数理基础和逻辑证明能力，不然你会跟我一样，吃不少苦头的。
+
+\section{证明SVM}
+说实话，凡是涉及到要证明的东西.理论，便一般不是怎么好惹的东西。绝大部分时候，看懂一个东西不难，但证明一个东西则需要点数学功底，进一步，证明一个东西也不是特别难，难的是从零开始发明创造这个东西的时候，则显艰难(因为任何时代，大部分人的研究所得都不过是基于前人的研究成果，前人所做的是开创性工作，而这往往是最艰难最有价值的，他们被称为真正的先驱。牛顿也曾说过，他不过是站在巨人的肩上。你，我则更是如此)。
+
+正如陈希孺院士在他的著作《数理统计学简史》的第4章、最小二乘法中所讲：在科研上诸多观念的革新和突破是有着很多的不易的，或许某个定理在某个时期由某个人点破了，现在的我们看来一切都是理所当然，但在一切没有发现之前，可能许许多多的顶级学者毕其功于一役，耗尽一生，努力了几十年最终也是无功而返。
+
+话休絮烦，要证明一个东西先要弄清楚它的根基在哪，即构成它的基础是哪些理论。OK，以下内容基本是上文中未讲到的一些定理的证明，包括其背后的逻辑、来源背景等东西，还是读书笔记。
+
+本部分导述
+
+\begin{itemize}
+  \item    3.1节线性学习器中，主要阐述感知机算法；
+  \item    3.2节非线性学习器中，主要阐述mercer定理；
+  \item    3.3节、损失函数；
+  \item    3.4节、最小二乘法；
+  \item    3.5节、SMO算法；
+  \item    3.6节、简略谈谈SVM的应用；
+\end{itemize}
+
+\subsection{线性学习器}
+\subsubsection{感知机算法}
+这个感知机算法是1956年提出的，年代久远，依然影响着当今，当然，可以肯定的是，此算法亦非最优，后续会有更详尽阐述。不过，有一点，你必须清楚，这个算法是为了干嘛的：不断的训练试错以期寻找一个合适的超平面(是的，就这么简单)。
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=13cm]{fig19}
+\end{figure}
+
+下面，举个例子。如下图所示，凭我们的直觉可以看出，图中的红线是最优超平面，蓝线则是根据感知机算法在不断的训练中，最终，若蓝线能通过不断的训练移动到红线位置上，则代表训练成功。
+
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=13cm]{fig20}
+\end{figure}
+
+既然需要通过不断的训练以让蓝线最终成为最优分类超平面，那么，到底需要训练多少次呢？Novikoff定理告诉我们当间隔是正的时候感知机算法会在有限次数的迭代中收敛，也就是说Novikoff定理证明了感知机算法的收敛性，即能得到一个界，不至于无穷循环下去。
+
+\begin{itemize}
+\item Novikoff定理：如果分类超平面存在, 仅需在序列$S$上迭代几次，在界为$\left(\frac{2R}{\gamma}\right)^2$的错误次数下就可以找到分类超平面，算法停止。
+\end{itemize}
+
+这里$R=\max_{1\leq i\leq l}\|x_i\|$，$\gamma$为扩充间隔。根据误分次数公式可知, 迭代次数与对应于扩充(包括偏置)权重的训练集的间隔有关。
+
+顺便再解释下这个所谓的扩充间隔$\gamma$，$\gamma$即为样本到分类间隔的距离，即从$\gamma$引出的最大分类间隔。OK，还记得上文第1.3.2节开头的内容么？如下：“
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=13cm]{fig21}
+\end{figure}
+在给出几何间隔的定义之前，咱们首先来看下，如上图所示，对于一个点 $x$ ，令其垂直投影到超平面上的对应的为 $x_0$ ，由于$ w$ 是垂直于超平面的一个向量，$\gamma$为样本$x$到分类间隔的距离，我们有
+\begin{equation}
+  x=x_0+\gamma\frac{w}{\|w\|}
+\end{equation}
+
+然后后续怎么推导出最大分类间隔请回到本文第一、二部分，此处不重复板书。
+
+同时有一点得注意：感知机算法虽然可以通过简单迭代对线性可分数据生成正确分类的超平面，但不是最优效果，那怎样才能得到最优效果呢，就是上文中第一部分所讲的寻找最大分类间隔超平面。此外，Novikoff定理的证明请见这里。
+
+\subsection{非线性学习器}
+\subsubsection{Mercer定理}
+Mercer定理 ：如果函数K是上的映射（也就是从两个n维向量映射到实数域）。那么如果K是一个有效核函数（也称为Mercer核函数），那么当且仅当对于训练样例，其相应的核函数矩阵是对称半正定的。 
+
+要理解这个Mercer定理，先要了解什么是半正定矩阵，要了解什么是半正定矩阵，先得知道什么是正定矩阵（矩阵理论“博大精深”，我自己也未能彻底理清，等我理清了再续写此节，顺便推荐我正在看的一本《矩阵分析与应用》）。然后这里有一个此定理的证明，可以看下。
+
+正如@Copper\_PKU所说：核函数在SVM的分类效果中起了重要的作用，最后这里有个tutorial可以看看。
+
+\subsection{损失函数}
+在本文1.0节有这么一句话“支持向量机(SVM)是90年代中期发展起来的基于统计学习理论的一种机器学习方法，通过寻求结构化风险最小来提高学习机泛化能力，实现经验风险和置信范围的最小化，从而达到在统计样本量较少的情况下，亦能获得良好统计规律的目的。”但初次看到的读者可能并不了解什么是结构化风险，什么又是经验风险。要了解这两个所谓的“风险”，还得又从监督学习说起。
+
+监督学习实际上就是一个经验风险或者结构风险函数的最优化问题。风险函数度量平均意义下模型预测的好坏，模型每一次预测的好坏用损失函数来度量。它从假设空间F中选择模型f作为决策函数，对于给定的输入X，由f(X)给出相应的输出Y，这个输出的预测值f(X)与真实值Y可能一致也可能不一致，用一个损失函数来度量预测错误的程度。损失函数记为L(Y, f(X))。
+
+
+常用的损失函数有以下几种（基本引用自《统计学习方法》）：
+
+\begin{enumerate}[(1)]
+    \item $0-1$损失函数
+      $$L(Y,f(X))=\left\{\begin{array}{l}1,Y\neq f(X)\\0,Y=f(X)\end{array}\right.$$
+    \item 平方损失函数
+      $$L(Y,f(X))=(Y-f(X))^2$$
+    \item 绝对损失函数
+      $$L(Y,f(X))=|Y-f(X)|$$
+    \item 对数损失函数
+      $$L(Y,P(Y|X))=-\log P(Y|X)$$
+\end{enumerate}
+模型$f(X)$关于训练数据集的平均损失称为经验风险，如下：
+\begin{equation}
+  R_{emp}(f)=\frac{1}{N}\sum_{i=1}^NL(y_i,f(x_i))
+\end{equation}
+关于如何选择模型，监督学习有两种策略：经验风险最小化和结构风险最小化。
+
+经验风险最小化的策略认为，经验风险最小的模型就是最优的模型，则按照经验风险最小化求解如下最优化问题：
+\begin{equation}
+  \label{eq_one}
+  \min_{f\in F}\frac{1}{N}\sum_{i=1}^NL(y_i,f(x_i))
+\end{equation}<F4>
+
+当样本容量很小时，经验风险最小化的策略容易产生过拟合的现象。结构风险最小化可以防止过拟合。结构风险是在经验风险的基础上加上白哦是模型复杂度的正则化项，结构风险定义如下：
+\begin{equation}
+  R_{srm}(f)=\frac{1}{N}\sum_{i=1}^NL(y_i.f(x_i))+\lambda J(f)
+\end{equation}
+其中$J(f)$为模型的复杂度，模型$f$越复杂，$J(f)$值就越大，模型越简单，$J(f)$值就越小，也就是说$J(f)$是对复杂模型的惩罚。$\lambda\geq0$是系数，用以权衡经验风险和模型复杂度。结构风险最小化的策略认为结构风险最小的模型是最优的模型，所以求最优的模型就是求解下面的最优化问题：
+\begin{equation}\label{eq_two}
+  \min_{f\in F}\frac{1}{N}\sum_{i=1}^NL(y_i,f(x_i))+\lambda J(f)
+\end{equation}
+这样，监督学习问题就变成了经验风险或结构风险函数的最优化问题，如式\ref{eq_one}和式\ref{eq_two}
+
+如此，SVM有第二种理解，即最优化+损失最小，或如@夏粉\_百度所说“可从损失函数和优化算法角度看SVM，boosting，LR等算法，可能会有不同收获”。
+
+OK，关于更多统计学习方法的问题，请参看此文。
+
+关于损失函数，如下文读者评论中所述：可以看看张潼的这篇《Statistical behavior and consistency of classification methods based on convex risk minimization》。各种算法中常用的损失函数基本都具有fisher一致性，优化这些损失函数得到的分类器可以看作是后验概率的“代理”。
+
+此外，他还有另外一篇论文《Statistical analysis of some multi-category large margin classification methods》，在多分类情况下margin loss的分析，这两篇对Boosting和SVM使用的损失函数分析的很透彻。
+
+\subsection{最小二乘法}
+\subsubsection{什么是最小二乘法？}
+既然本节开始之前提到了最小二乘法，那么下面引用《正态分布的前世今生》里的内容稍微简单阐述下。
+
+我们口头中经常说：一般来说，平均来说。如平均来说，不吸烟的健康优于吸烟者，之所以要加“平均”二字，是因为凡事皆有例外，总存在某个特别的人他吸烟但由于经常锻炼所以他的健康状况可能会优于他身边不吸烟的朋友。而最小二乘法的一个最简单的例子便是算术平均。
+
+最小二乘法（又称最小平方法）是一种数学优化技术。它通过最小化误差的平方和寻找数据的最佳函数匹配。利用最小二乘法可以简便地求得未知的数据，并使得这些求得的数据与实际数据之间误差的平方和为最小。用函数表示为：
+\begin{equation}
+  \min_{\vec x}\sum_{i=1}^n(y_m-y_i)^2
+\end{equation}
+
+使误差「所谓误差，当然是观察值与实际真实值的差量」平方和达到最小以寻求估计值的方法，就叫做最小二乘法，用最小二乘法得到的估计，叫做最小二乘估计。当然，取平方和作为目标函数只是众多可取的方法之一。
+
+最小二乘法的一般形式可表示为：
+
+\begin{equation}
+  \min_{\vec x}\|\vec y_{m}(\vec x)-\vec y\|_2
+\end{equation}
+
+有效的最小二乘法是勒让德在 1805 年发表的，基本思想就是认为测量中有误差，所以所有方程的累积误差为
+
+\begin{equation}
+  \text{累积误差}=\sum(\text{观测值}-\text{理论值})^2
+\end{equation}
+我们求解出导致累积误差最小的参数即可：
+\begin{equation}
+  \begin{split}
+    \widehat\beta &= argmin_\beta\sum_{i=1}^ne_i^2\\
+    &= argmin_\beta\sum_{i=1}^n[y_i-(\beta_0+\beta_1x_{1i}+\cdots+\beta_px_{pi})]^2
+  \end{split}
+\end{equation}
+
+勒让德在论文中对最小二乘法的优良性做了几点说明：
+\begin{itemize}
+    \item 最小二乘使得误差平方和最小，并在各个方程的误差之间建立了一种平衡，从而防止某一个极端误差取得支配地位
+    \item 计算中只要求偏导后求解线性方程组，计算过程明确便捷
+    \item 最小二乘可以导出算术平均值作为估计值
+\end{itemize}
+
+对于最后一点，从统计学的角度来看是很重要的一个性质。推理如下：假设真值为 $\theta,x_q,\cdots,x_n$为$n$次测量值, 每次测量的误差为$e_i=x_i−\theta$，按最小二乘法，误差累积为
+\begin{equation}
+  L(\theta)=\sum_{i=1}^ne_i^2=\sum_{i=1}^n(x_i-\theta)^2
+\end{equation}
+求解$\theta$ 使$L(\theta)$达到最小，正好是算术平均$\bar x=\frac{\sum_{i=1}^nx_i}{n}$。
+
+由于算术平均是一个历经考验的方法，而以上的推理说明，算术平均是最小二乘的一个特例，所以从另一个角度说明了最小二乘方法的优良性，使我们对最小二乘法更加有信心。
+
+最小二乘法发表之后很快得到了大家的认可接受，并迅速的在数据分析实践中被广泛使用。不过历史上又有人把最小二乘法的发明归功于高斯，这又是怎么一回事呢。高斯在1809年也发表了最小二乘法，并且声称自己已经使用这个方法多年。高斯发明了小行星定位的数学方法，并在数据分析中使用最小二乘方法进行计算，准确的预测了谷神星的位置。
+
+说了这么多，貌似跟本文的主题SVM没啥关系呀，别急，请让我继续阐述。本质上说，最小二乘法即是一种参数估计方法，说到参数估计，咱们得从一元线性模型说起。
+
+\subsubsection{最小二乘法的解法}
+什么是一元线性模型呢？ 请允许我引用这里的内容，先来梳理下几个基本概念：
+\begin{itemize}
+    \item 监督学习中，如果预测的变量是离散的，我们称其为分类（如决策树，支持向量机等），如果预测的变量是连续的，我们称其为回归。
+    \item 回归分析中，如果只包括一个自变量和一个因变量，且二者的关系可用一条直线近似表示，这种回归分析称为一元线性回归分析。
+    \item 如果回归分析中包括两个或两个以上的自变量，且因变量和自变量之间是线性关系，则称为多元线性回归分析。
+    \item 对于二维空间线性是一条直线；对于三维空间线性是一个平面，对于多维空间线性是一个超平面
+\end{itemize}
+对于一元线性回归模型, 假设从总体中获取了$n$组观察值$(X_1,Y_1),(X_2.Y_2),\cdots,(X_n,Y_n)$。对于平面中的这$n$个点，可以使用无数条曲线来拟合。要求样本回归函数尽可能好地拟合这组值。综合起来看，这条直线处于样本数据的中心位置最合理。 
+
+选择最佳拟合曲线的标准可以确定为：使总的拟合误差（即总残差）达到最小。有以下三个标准可以选择：
+\begin{enumerate}[1.~]
+    \item 用“残差和最小”确定直线位置是一个途径。但很快发现计算“残差和”存在相互抵消的问
+    \item 用“残差绝对值和最小”确定直线位置也是一个途径。但绝对值的计算比较麻。
+    \item 最小二乘法的原则是以“残差平方和最小”确定直线位置。用最小二乘法除了计算比较方便外，得到的估计量还具有优良特性。这种方法对异常值非常敏。
+\end{enumerate}
+
+最常用的是普通最小二乘法（ Ordinary  Least Square，OLS）：所选择的回归模型应该使所有观察值的残差平方和达到最小，即采用平方损失函数。 　
+
+我们定义样本回归模型为：
+
+\begin{equation}
+  Y_i=\widehat\beta_0+\widehat\beta_1X_i+e_i\Rightarrow e_i=Y_i-\widehat\beta_0=\widehat\beta_1X_i
+\end{equation}
+
+其中$e_i$为样本$(X_i,Y_i)$的误差。
+
+接着，定义平方损失函数$Q$：
+\begin{equation}
+  Q=\sum_{i=1}^ne_i^2=\sum_{i=1}^n(Y_i-\widehat Y_i)^2=\sum_{i=1}^n(Y_i-\widehat\beta_0=\widehat\beta_1X_i)^2
+\end{equation}
+
+则通过$Q$最小确定这条直线，即确定$\widehat\beta_0,\widehat\beta_1$，以$\widehat\beta_0,\widehat\beta_1$为变量，把它们看作是$Q$的函数，就变成了一个求极值的问题，可以通过求导数得到。
+
+求$Q$对两个待估参数的偏导数：
+\begin{equation}
+  \left\{\begin{array}{c}
+      \frac{\partial Q}{\partial\widehat\beta_0}=2\sum_{i=1}^n(Y_i-\widehat\beta_0-\widehat\beta_1X_i)=0\\
+      \frac{\partial Q}{\partial\widehat\beta_1}=2\sum_{i=1}^n(Y_i-\widehat\beta_0-\widehat\beta_1X_i)=0
+  \end{array}\right.
+\end{equation}
+ 根据数学知识我们知道，函数的极值点为偏导为$0$的点。
+ 
+ 解得：
+\begin{equation}
+  \begin{split}
+    \widehat\beta_2=\frac{n\sum X_iY_i-\sum X_i\sum Y_i}{n\sum X_i^2-(\sum X_i)^2}\\
+    \widehat\beta_1=\frac{\sum X_i^2\sum Y_i-\sum X_i\sum X_iY_i}{n\sum X_i^2-(\sum X_i)^2}
+  \end{split}
+\end{equation}
+
+这就是最小二乘法的解法，就是求得平方损失函数的极值点。自此，你看到求解最小二乘法与求解SVM问题何等相似，尤其是定义损失函数，而后通过偏导求得极值。
+
+OK，更多请参看陈希孺院士的《数理统计学简史》的第4章、最小二乘法，和本文参考条目第59条《凸函数》。
+
+\subsection{SMO算法}
+
+在上文2.1.2节中，我们提到了求解对偶问题的序列最小最优化SMO算法，但并未提到具体解法。
+
+事实上，SMO算法是由Microsoft Research的John C. Platt在1998年发表的一篇论文《Sequential Minimal Optimization A Fast Algorithm for Training Support Vector Machines》中提出，它很快成为最快的二次规划优化算法，特别针对线性SVM和数据稀疏时性能更优。
+
+接下来，咱们便参考John C. Platt的这篇文章来看看SMO的解法是怎样的。
+
+\subsubsection{SMO算法的解法}
+
+咱们首先来定义特征到结果的输出函数为
+
+\begin{equation}
+  u=\vec w \cdot \vec x-b
+\end{equation}
+
+再三强调，这个$u$与我们之前定义的$f(x)=w^Tx+b$实质是一样的。
+
+接着，咱们重新定义咱们原始的优化问题，权当重新回顾，如下：
+\begin{equation}
+  \min_{w,b}\frac{1}{2}\|\vec w\|^2 subject to y_i(\vec w \cdot \vec x_i-b)\geq 1,\forall i
+\end{equation}
+
+求导得到：
+\begin{equation}
+  \vec w =\sum_{i=1}^Ny_i\alpha_i\vec X_i,b=\vec w \cdot \vec x_k-y_k for some \alpha_k>0
+\end{equation}
+代入$ u=\vec w \cdot \vec x-b$中，可得$u=\sum_{j=1}{N}y_j\alpha_jK(\vec x_j,\vec x)-b$。
+
+引入对偶因子后，得：
+
+\begin{equation}
+  \begin{split}
+    \min_\alpha\Psi(\vec\alpha)=\min_\alpha\frac{1}{2}\sum_{i=1}^N\sum_{j=1}^Ny_iy_j(\vec x_i\cdot \vec x_j)\alpha_i\alpha_j-\sum_{i=1}^N\alpha_i\\
+    s.t.:\;\alpha_i\geq0,\forall i,\\
+    \text{且}\sum_{i=1}^Ny_i\alpha_i=0
+  \end{split}
+\end{equation}
+
+注：这里得到的$\min$函数与我们之前的$\max$函数实质也是一样，因为把符号变下，即有$\min$转化为$\max$的问题，且$y_i$也与之前的$y^{(i)}$等价，$y_j$亦如此。
+
+经过加入松弛变量后，模型修改为：
+\begin{equation}
+  \begin{split}
+    \min_{\vec w,b,\vec \xi}\frac{1}{2}\|\vec w\|^2+C\sum_{i=1}^N\xi_i subject to y_i(\vec w \cdot \vec x_i -b)\geq 1-\xi_i,\forall i\\
+    0\leq\alpha_i\leq C,\forall i
+  \end{split}
+\end{equation}
+从而最终我们的问题变为：
+\begin{equation}
+  \begin{split}
+    \min_\alpha\Psi(\vec\alpha)=\min_\alpha\frac{1}{2}\sum_{i=1}^N\sum_{j=1}^Ny_iy_jK(\vec x_i\cdot \vec x_j)\alpha_i\alpha_j-\sum_{i=1}^N\alpha_i\\
+    0\leq\alpha_i\leq C,\forall i
+    \sum_{i=1}^Ny_i\alpha_i=0
+  \end{split}
+\end{equation}
+继而，根据KKT条件可以得出其中$\alpha_i$取值的意义为：
+\begin{equation}
+  \begin{split}
+    \alpha_i=0 \Leftrightarrow y_iu_i\leq1,\\
+    0<\alpha_i<C \Leftrightarrow y_iu_i=1,\\
+    \alpha_i=C\Leftrightarrow y_iu_i\leq 1.
+  \end{split}
+\end{equation}
+
+这里的$\alpha_i$还是拉格朗日乘子(问题通过拉格朗日乘法数来求解)
+\begin{enumerate}[1.~]
+  \item 对于第1种情况，表明是正常分类，在边界内部（我们知道正确分类的点yi*f(xi)>=0）；
+  \item 对于第2种情况，表明了是支持向量，在边界上；
+  \item 对于第3种情况，表明了是在两条边界之间；
+\end{enumerate}
+而最优解需要满足KKT条件，即上述3个条件都得满足，以下几种情况出现将会出现不满足：
+\begin{itemize}
+  \item $y_iu_i\leq1$但是$\alpha<C$则是不满足的,而原本$\alpha_i=C$
+  \item $y_iu_i\geq1$但是$\alpha>0$则是不满足的而原本$\alpha_i=0$
+  \item $y_iu_i=1$但是$\alpha_i=0$或者$alpha_i=C$则表明不满足的，而原本应该是$0<\alpha_i<C$
+\end{itemize}
+所以要找出不满足KKT条件的这些$\alpha_i$，并更新这些$\alpha_i$，但这些$\alpha_i$又受到另外一个约束，即
+\begin{equation}
+  \sum_{i=1}^m \alpha _i y^{(i)}=0
+\end{equation}
+注：别忘了2.1.1节中，$L$对$a$、$b$求偏导，得到：
+\begin{equation}
+  \begin{split}
+    \frac{\partial\mathcal{L}}{\partial w}=0 \Rightarrow w=\sum_{i=1}^n\alpha_iy_ix_i\\
+    \frac{\partial\mathcal{L}}{\partial b}=0 \Rightarrow w=\sum_{i=1}^n\alpha_iy_i=0
+  \end{split}
+\end{equation}
+因此，我们通过另一个方法，即同时更新ai和aj，要求满足以下等式：
+\begin{equation}
+  a_i^{new}y_i+a_j^{new}y_j= a_i^{old}y_i+a_j^{old}y_j=\text{常数}
+\end{equation}
+就能保证和为$0$的约束。
+
+利用$y_ia_i+y_ja_j=\text{常数}$，消去$a_i$，可得到一个关于单变量$a_j$的一个凸二次规划问题，不考虑其约束$0\leq aj\leq C$,可以得其解为：
+
+\begin{equation}
+  \alpha_j^{new,clipped}=\left\{\begin{array}{ll}
+      H & if \alpha_j^{new}\geq H\\
+      \alpha_j^{new} & if L<\alpha_j^{new}<H\\
+      L & if \alpha_j^{new}\leq L
+  \end{array}\right.
+\end{equation}
+
+把SMO中对于两个参数求解过程看成线性规划来理解来理解的话，那么下图所表达的便是约束条件
+$ a_i^{new}y_i+a_j^{new}y_j= a_i^{old}y_i+a_j^{old}y_j=\text{常数}$:
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=13cm]{fig22}
+\end{figure}
 
 
 
-
-
-%\section{公式？！}
-%
+%\section{公式？！} %
 %\href{http://www.sciweavers.org/free-online-latex-equation-editor}{手点}
 %
 %
