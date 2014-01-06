@@ -349,8 +349,8 @@ OK，到此为止，算是了解到了SVM的第一层，对于那些只关心怎
 （1）、首先固定，要让$ L$ 关于 $w$ 和 $b$ 最小化，我们分别对$w$，$b$求偏导数，即令 $\partial\mathcal{L}/\partial w$ 和 $\partial\mathcal{L}/\partial b$ 等于零（对$w$求导结果的解释请看本文评论下第45楼回复）：
 \begin{equation}
   \begin{split}
-    \frac{\mathcal{L}}{\partial w}= &\Rightarrow w=\sum_{i=1}^n\alpha_iy_ix_i\\
-    \frac{\mathcal{L}}{\partial b}= &\Rightarrow w=\sum_{i=1}^n\alpha_iy_i=0
+    \frac{\partial\mathcal{L}}{\partial w}= &\Rightarrow w=\sum_{i=1}^n\alpha_iy_ix_i\\
+    \frac{\partial\mathcal{L}}{\partial b}= &\Rightarrow w=\sum_{i=1}^n\alpha_iy_i=0
   \end{split}
 \end{equation}
 
