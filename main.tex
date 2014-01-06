@@ -995,9 +995,11 @@ OK，更多请参看陈希孺院士的《数理统计学简史》的第4章、�
 从而最终我们的问题变为：
 \begin{equation}
   \begin{split}
+    \begin{array}{c}
     \min_\alpha\Psi(\vec\alpha)=\min_\alpha\frac{1}{2}\sum_{i=1}^N\sum_{j=1}^Ny_iy_jK(\vec x_i\cdot \vec x_j)\alpha_i\alpha_j-\sum_{i=1}^N\alpha_i\\
     0\leq\alpha_i\leq C,\forall i
     \sum_{i=1}^Ny_i\alpha_i=0
+  \end{array}
   \end{split}
 \end{equation}
 继而，根据KKT条件可以得出其中$\alpha_i$取值的意义为：
@@ -1056,212 +1058,211 @@ $ a_i^{new}y_i+a_j^{new}y_j= a_i^{old}y_i+a_j^{old}y_j=\text{常数}$:
   \includegraphics[width=13cm]{fig22}
 \end{figure}
 
+根据$y_i$和$y_j$同号或异号，可得出两个拉格朗日乘子$\alpha$的上下界分别为：
+\begin{equation}
+  \left\{\begin{array}{lr}
+      L=\max(0,\alpha_j-\alpha_i),H=\max(C,C+\alpha_j-\alpha_i) & if y_i\neq y_j\\
+      L=\max(0,\alpha_j+\alpha_i-C),H=\max(C,\alpha_j-\alpha_i) & if y_i= y_j\\
+    \end{array}
+    \right.
+\end{equation}
 
+对于$\alpha_i$,有$\alpha_i^{new}=\alpha_i+y_iy_j(\alpha_j-\alpha_j^{new,clipped})$。
+那么如何求得$\alpha_i$和$\alpha_j$呢？
+\begin{itemize}
+    \item 对于$\alpha_i$，即第一个乘子，可以通过刚刚说的那3种不满足KKT的条件来找；
+    \item 而对于第二个乘子$\alpha_j$可以找满足条件 ：$\max|E_i-E_j|$求得。
+\end{itemize}
+而$b$的更新则是：
+\begin{equation}
+  b:=\left\{\begin{array}{ll}
+      b_1 & if 0<\alpha_i<C\\
+      b_2 & if 0<\alpha_j<C\\
+      (b_1+b_2)/2 & otherwise
+    \end{array}
+  \right.
+\end{equation}
+下更新$b$，且每次更新完两个乘子的优化后，都需要再重新计算$b$，及对应的$E_i$值。
+最后更新所有$\alpha_i$，$y$和$b$，这样模型就出来了，从而即可求出咱们开头提出的分类函数
+\begin{equation}
+  f(x)=\sum_{j=1}^n\alpha_jy_jk(x_j,x)+b
+\end{equation}
 
-%\section{公式？！} %
-%\href{http://www.sciweavers.org/free-online-latex-equation-editor}{手点}
-%
-%
-%\href{}{手写}
-%
-%\input{body/equation}
-%
-%
-%
-%\section{图表}
-%\subsection{插图}
-%
-%\begin{figure}[H]
-%\includegraphics[width=8cm]{figure1.jpg}
-%\caption{Shubert Function}
-%\end{figure}
-%
-%\begin{lstlisting}[language=TeX,numbers=none,frame=lrtb,keywords={begin},label=Gamma,caption=Gamma]
-%\begin{figure}[H]
-%\includegraphics[width=8cm]{figure1.jpg}
-%\caption{Shubert Function}
-%\end{figure}
-%\end{lstlisting}
-%
-%\begin{figure}[H]
-%\centering
-%\includegraphics[width=8cm]{figure1.jpg}
-%\caption{Shubert Function}
-%\end{figure}
-%
-%\begin{lstlisting}[language=TeX,numbers=none,frame=lrtb,keywords={begin},label=Gamma,caption=Gamma]
-%\begin{figure}[H]
-%\centering
-%\includegraphics[width=8cm]{figure1.jpg}
-%\caption{Shubert Function}
-%\end{figure}
-%\end{lstlisting}
-%\begin{lstlisting}[language=TeX,numbers=none,frame=lrtb,keywords={begin},label=Gamma,caption=Gamma]
-%\begin{figure}[H]
-%	\begin{center}
-%	\includegraphics[width=8cm]{figure1.jpg}
-%	\caption{Shubert Function}
-%	\end{center}
-%\end{figure}
-%\end{lstlisting}
-%
-%
-%\begin{figure}[H]
-%\centering
-%\subfigure[恩恩]{
-%\includegraphics[width=4cm]{figure1.jpg}
-%\includegraphics[width=4cm]{figure21.jpg}
-%}
-%\subfigure[呵呵]{
-%\includegraphics[width=4cm]{figure1.jpg}
-%\includegraphics[width=4cm]{figure1.jpg}
-%}
-%\caption{The trace of NO.2 player , NO.5 player and ball from cycle 238 to cycle 258}
-%\end{figure}
-%
-%\begin{lstlisting}[language=TeX,numbers=none,frame=lrtb,keywords={begin},label=Gamma,caption=Gamma]
-%\begin{figure}[H]
-%\centering
-%\subfigure[ 恩恩]{
-%\includegraphics[width=4cm]{figure1.jpg}
-%\includegraphics[width=4cm]{figure21.jpg}
-%}
-%\subfigure[ 呵呵]{
-%\includegraphics[width=4cm]{figure1.jpg}
-%\includegraphics[width=4cm]{figure1.jpg}
-%}
-%\caption{The trace of NO.2 player , NO.5 player and ball from cycle 238 to cycle 258}
-%\end{figure}
-%\end{lstlisting}
-%
-%\begin{figure}[H]
-%\centering
-%\subfigure[the first subfigure]{
-%\begin{minipage}[b]{0.2\textwidth}
-%\includegraphics[width=1\textwidth]{figure1} \\
-%\includegraphics[width=1\textwidth]{figure21}
-%\end{minipage}
-%}
-%\subfigure[the second subfigure]{
-%\begin{minipage}[b]{0.2\textwidth}
-%\includegraphics[width=1\textwidth]{figure1} \\
-%\includegraphics[width=1\textwidth]{figure1}
-%\end{minipage}
-%}
-%\end{figure}
-%
-%
-%\begin{lstlisting}[language=TeX,numbers=none,frame=lrtb,keywords={begin},label=Gamma,caption=Gamma]
-%\begin{figure}[H]
-%\centering
-%\subfigure[the first subfigure]{
-%\begin{minipage}[b]{0.2\textwidth}
-%\includegraphics[width=1\textwidth]{figure1} \\
-%\includegraphics[width=1\textwidth]{figure21}
-%\end{minipage}
-%}
-%\subfigure[the second subfigure]{
-%\begin{minipage}[b]{0.2\textwidth}
-%\includegraphics[width=1\textwidth]{figure1} \\
-%\includegraphics[width=1\textwidth]{figure1}
-%\end{minipage}
-%}
-%\end{figure}
-%\end{lstlisting}
-%
-%
-%\subsection{画表}
-%
-%
-%\begin{table}[H]
-%\centering
-%\caption{Comparison of algorithm efficiency between AINGA and SIGA}
-%\begin{tabular}{c|c|c}
-%\hline
-%Algorithm & Average steps & Success rate /\%\\\hline
-%AINGA & 92 & 100\\\hline
-%SIGA & 213 & 60\\\hline
-%\end{tabular}
-%\end{table}
-%
-%
-%\begin{lstlisting}[language=TeX,numbers=none,frame=lrtb,keywords={begin},label=Gamma,caption=Gamma]
-%\begin{table}[H]
-%\centering
-%\caption{Comparison of algorithm efficiency between AINGA and SIGA}
-%\begin{tabular}{c|c|c}
-%\hline
-%Algorithm & Average steps & Success rate /\%\\\hline
-%AINGA & 92 & 100\\\hline
-%SIGA & 213 & 60\\\hline
-%\end{tabular}
-%\end{table}
-%\end{lstlisting}
-%
-%
-%
-%\begin{table}[H]
-%\centering
-%\caption{Comparison of tackle success rate between the team based on AINGA and the team based on SGA.}
-%\begin{tabular}{c|c|c|c|c}
-%\hline
-%Team & \tabincell{c}{50\\matches} & \tabincell{c}{100\\matches} & \tabincell{c}{200\\matches} & \tabincell{c}{Success \\rate/\%}  \\ \hline
-%AINGA & 89\% & 91\% & 90\% & 90\% \\\hline
-%Q-Learning & 84\% & 86\% & 83\% & 84.3\% \\\hline
-%\end{tabular}
-%\end{table}
-%
-%\begin{lstlisting}[language=TeX,numbers=none,frame=lrtb,keywords={begin},label=Gamma,caption=Gamma]
-%\begin{table}[H]
-%\centering
-%\caption{Comparison of tackle success rate between the team based on AINGA and the team based on SGA.}
-%\begin{tabular}{c|c|c|c|c}
-%\hline
-%Team & \tabincell{c}{50\\matches} & \tabincell{c}{100\\matches} & \tabincell{c}{200\\matches} & \tabincell{c}{Success \\rate/\%}  \\ \hline
-%AINGA & 89\% & 91\% & 90\% & 90\% \\\hline
-%Q-Learning & 84\% & 86\% & 83\% & 84.3\% \\\hline
-%\end{tabular}
-%\end{table}
-%\end{lstlisting}
-%
-%\section{参考文献}
-%\begin{lstlisting}[language=TeX,numbers=none,frame=lrtb,keywords={begin},label=Gamma,caption=Gamma]
-%@article{name1,
-%author = {作者, 多个作者用 and 连接},
-%title = {标题},
-%journal = {期刊名},
-%volume = {卷20},
-%number = {页码},
-%year = {年份},
-%abstract = {摘要, 这个主要是引用的时候自己参考的, 这一行不是必须的}
-%}
-%
-%@book{name2,
-%author ="作者",
-%year="年份2008",
-%title="书名",
-%publisher ="出版社名称"
-%}
-%\end{lstlisting}
-%
-%最简单的使用方法
-%
-%
-%\begin{lstlisting}[language=TeX,numbers=none,frame=lrtb,keywords={begin},label=Gamma,caption=Gamma]
-%\bibitem{CK1}Shing-jun Ren and Hai-de Huang (2001). “A Robot Path
-%Planning Algorithm Based On Grid Expansion.” Journal of
-%Harbin Institute of Technology. Vol.9,No. 11, pp. 68-72.
-%\end{lstlisting}
-%
-%\begin{thebibliography}{11}
-%\bibitem{CK1}Shing-jun Ren and Hai-de Huang (2001). “A Robot Path
-%Planning Algorithm Based On Grid Expansion.” Journal of
-%Harbin Institute of Technology. Vol.9,No. 11, pp. 68-72.
-%\bibitem{CK2} Hong-yan Shi, Chang-zhi Sun et al. (2006). “Chaotic
-%Potential Field Method and Application in RobotSoccer
-%Game.” Proceedings of the 6th World Congress on
-%Intelligent Control andAutomation, Dalian, China, June
-%2006.
-%
-%\end{thebibliography}
+此外，这里也有一篇类似的文章，大家可以参考下。
+\subsubsection{SMO算法的步骤}
+这样，SMO的主要步骤如下：
+
+Repeat till convergence{
+  \begin{enumerate}[1.~]
+      \item Select some pair $\alpha_i$ and $\alpha_j$ to update next (using a heuristic that tries to pick the two that will allow us to make th biggest progress towards the global maximum).
+      \item Reoptimize $W(\alpha)$ with respect to $\alpha_i$ and $\alpha_j$ , while holding all the other $\alpha_k's(k\neq i,j)$ fixed.
+  \end{enumerate}
+}
+意思是，
+\begin{enumerate}[1.~]
+    \item 第一步选取一对和，选取方法使用启发式方法；
+    \item 第二步，固定除和之外的其他参数，确定W极值条件下的，由表示。
+\end{enumerate}
+假定在某一次迭代中，需要更新，对应的拉格朗日乘子，，那么这个小规模的二次规划问题写为：
+\begin{equation}
+  \begin{split}
+    \begin{array}{c}
+    L_s=\max_\alpha\left\{(\alpha_1+\alpha_2)+\sum_{i=3}^n\alpha_i-\frac{1}{2}\left||\alpha_1y_1\phi(x_1)+\alpha_1y_1\phi(x_1)+\sum_{i=3}^n\alpha_iy_i\phi(x_i)|\right|^2\right\}\text{这边公式有点不明，待查}\\
+    s.t.\alpha_1y_1+\alpha_2y_2=-\sum_{i=3}^n\alpha_iy_i,0<\alpha_i<C,\forall i
+  \end{array}
+  \end{split}
+\end{equation}
+那么在每次迭代中，如何更新乘子呢？引用这里的两张PPT说明下：
+
+更新拉格郎日乘子$\alpha_1,\alpha_2$
+\begin{enumerate}[-步骤1:~]
+    \item 计算上下界$L$和$H$
+      \begin{itemize}
+          \item $L=\max(0,\alpha_2^{old}-\alpha_1^{old}),H=\min(C,C+\alpha_2^{old}-\alpha_1^{old}),if y_1\neq y_2$
+          \item $L=\max(0,\alpha_2^{old}+\alpha_1^{old}-C),H=\min(C,\alpha_2^{old}+\alpha_1^{old}),if y_1= y_2$
+      \end{itemize}
+    \item 计算$L_s$的二阶导数
+      \begin{itemize}
+        \item $\eta=2\phi(x_1)^t\phi(x_2)-\phi(x_1)^t\phi(x_1)-\phi(x_2)^t\phi(x_2)$
+      \end{itemize}
+    \item 更新$L_s$
+          \begin{equation*}
+            \begin{split}
+              \begin{array}{c}
+                \alpha_2^{new}=\alpha_2^{old}-\frac{y_2(e_1-e_2)}{\eta}\\
+                e_i=g^{old}(x_i)-y_i
+              \end{array}
+            \end{split}
+          \end{equation*}
+    \item 计算变量$\alpha_2$
+      \begin{equation*}
+        \alpha^{temp}=\left\{\begin{array}{rl}
+            H, & if \alpha_2^{new}\geq H\\
+            \alpha_2^{new}, & if L\leq\alpha_2^{new}\geq H\\
+            L, & if \alpha_2^{new}\leq L
+        \end{array}\right.
+      \end{equation*}
+    \item 更新$\alpha_1$
+      $$\alpha_1^{new}=\alpha_1^{old}+y_1y_2(\alpha_2^{old}-\alpha^{temp})$$
+\end{enumerate}
+ 知道了如何更新乘子，那么选取哪些乘子进行更新呢？具体选择方法有以下两个步骤：
+ \begin{enumerate}[1.~]
+     \item 步骤1：先“扫描”所有乘子，把第一个违反KKT条件的作为更新对象，令为$\alpha_2$;
+     \item 步骤2：在所有不违反KKT条件的乘子中，选择使$|E_1 −E_2|$最大的$\alpha_2$（注：别忘了，其中$E_i=u_i-y_i$，而$u=\vec w\cdot \vec x-b$，求出来的$E$代表函数$u_i$对输入$x_i$的预测值与真实输出类标记$y_i$之差）。
+\end{enumerate}
+ 值得一提的是，每次更新完两个乘子的优化后，都需要再重新计算$b$，及对应的$E_i$值。
+
+与此同时，乘子的选择务必遵循两个原则：
+ \begin{itemize}
+  \item 使乘子能满足KKT条件
+ \item 对一个满足KKT条件的乘子进行更新，应能最大限度增大目标函数的值（类似于梯度下降）
+ \end{itemize}
+ 
+ 综上，SMO算法的基本思想是将Vapnik在1982年提出的Chunking方法推到极致，SMO算法每次迭代只选出两个分量$\alpha_i$和$\alpha_j$进行调整，其它分量则保持固定不变，在得到解$\alpha_i$和$\alpha_j$之后，再用i$\alpha_i$和$\alpha_j$改进其它分量。与通常的分解算法比较，尽管它可能需要更多的迭代次数，但每次迭代的计算量比较小，所以该算法表现出整理的快速收敛性，且不需要存储核矩阵，也没有矩阵运算。
+
+ \subsubsection{SMO算法的实现}
+ 行文至此，我相信，SVM理解到了一定程度后，是的确能在脑海里从头至尾推导出相关公式的，最初分类函数，最大化分类间隔，$\max\frac{1}{\|w\|}$，$\min\frac{1}{2\|w\|^2}$，凸二次规划，拉格朗日函数，转化为对偶问题，SMO算法，都为寻找一个最优解，一个最优分类平面。一步步梳理下来，为什么这样那样，太多东西可以追究，最后实现。如下图所示：
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=13cm]{fig23}
+\end{figure}
+至于下文中将阐述的核函数则为是为了更好的处理非线性可分的情况，而松弛变量则是为了纠正或约束少量“不安分”或脱离集体不好归类的因子。
+
+台湾的林智仁教授写了一个封装SVM算法的libsvm库，大家可以看看，此外这里还有一份libsvm的注释文档。
+
+了在这篇论文《fast training of support vector machines using sequential minimal optimization》中platt给出了SMO算法的逻辑代码之外，这里也有一份SMO的实现代码，大家可以看下。
+
+其余更多请参看文末参考文献和推荐阅读中的条目6《支持向量机--算法、理论和扩展》和条目11《统计学习方法》的相关章节，或跳至下文3.4节。
+
+\subsection{SVM的应用}
+
+或许我们已经听到过，SVM在很多诸如文本分类，图像分类，生物序列分析和生物数据挖掘，手写字符识别等领域有很多的应用，但或许你并没强烈的意识到，SVM可以成功应用的领域远远超出现在已经在开发应用了的领域。
+\subsubsection{文本分类}
+一个文本分类系统不仅是一个自然语言处理系统，也是一个典型的模式识别系统，系统的输入是需要进行分类处理的文本，系统的输出则是与文本关联的类别。由于篇幅所限，其它更具体内容本文将不再详述。
+
+OK，本节虽取标题为证明SVM，但聪明的读者们想必早已看出，其实本部分并无多少证明部分（特此致歉），怎么办呢？可以参阅《支持向量机导论》一书，此书精简而有趣。本节完。
+
+\section*{读者评论}
+本文发表后，微博上的很多朋友给了不少意见，以下是节选的一些精彩评论：
+\begin{enumerate}[1.~]
+\item “压力”陡增的评论→//@藏了个锋：我是看着July大神的博文长大的啊//@zlkysl：就是看了最后那一篇才决定自己的研究方向为SVM的。--\url{http://weibo.com/1580904460/zraWk0u6u?mod=weibotime}。
+    \item @张金辉：“SVM的三重境界，不得不转的一篇。其实Coursera的课堂上Andrew Ng讲过支持向量机，但显然他没有把这作为重点，加上Ng讲支持向量机的方法我一时半会难以完全消化，所以听的也是一知半解。真正开始了解支持向量机就是看的这篇“三重境界”，之后才对这个算法有了大概的概念，以至如何去使用，再到其中的原理为何，再到支持向量机的证明等。总之，这篇文章开启了我长达数月的研究支持向量机阶段，直到今日。”--\url{http://zhan.renren.com/profile/249335584?from=template#!//tag/三重境界}。
+    \item @孤独之守望者："最后，推出svm的cost function 是hinge loss，然后对比其他的方法的cost function，说明其实他们的目标函数很像，那么问题是svm为什么这么popular呢？您可以再加些VC dimension跟一些error bound的数学，点一下，提供一个思路和方向"。--\url{http://weibo.com/1580904460/AiohoyDwq?mod=weibotime}。
+    \item @夏粉\_百度：“在面试时，考察SVM可考察机器学习各方面能力：目标函数,优化过程,并行方法，算法收敛性,样本复杂度，适用场景,调参经验，不过个人认为考察boosting和LR也还不错啊。此外，随着统计机器学习不断进步，SVM只被当成使用了一个替代01损失hinge研究，更通用的方法被提出，损失函数研究替代损失与贝叶斯损失关系，算法稳定性研究替代损失与推广性能关系,凸优化研究如何求解凸目标函数，SVM,boosting等算法只是这些通用方法的一个具体组建而已。”
+    \item @居里猴姐：关于SVM损失函数的问题，可以看看张潼老师的这篇《Statistical behavior and consistency of classification methods based on convex risk minimization》。各种算法中常用的损失函数基本都具有fisher一致性，优化这些损失函数得到的分类器可以看作是后验概率的“代理”。此外，张潼老师还有另外一篇论文《Statistical analysis of some multi-category large margin classification methods》，在多分类情况下margin loss的分析，这两篇对Boosting和SVM使用的损失函数分析的很透彻。
+    \item @夏粉\_百度：SVM用了hinge损失，hinge损失不可导，不如其它替代损失方便优化并且转换概率麻烦。核函数也不太用，现在是大数据时代，样本非常大，无法想象一个$n^2$的核矩阵如何存储和计算。 而且，现在现在非线性一般靠深度学习了。//@Copper\_PKU:请教svm在工业界的应用典型的有哪些？工业界如何选取核函数，经验的方法？svm的训练过程如何优化？
+    \item @Copper\_PKU：July的svm tutorial 我个人觉得还可以加入和修改如下部分：(1) 对于支持向量解释，可以结合图和拉格朗日参数来表达，松弛中sv没有写出来. (2) SMO算法部分，加入Joachims论文中提到的算法，以及SMO算法选取workset的方法，包括SMO算法的收敛判断，还有之前共轭梯度求解方法，虽然是较早的算法，但是对于理解SMO算法有很好的效果。模型的优化和求解都是迭代的过程，加入历史算法增强立体感。--  \url{http://weibo.com/1580904460/Akw6dl3Yk#\_rnd1385474436177}。
+    \item //@廖临川: 之所以sgd对大训练集的效果更好，1.因为SGD优化每次迭代使用样本子集，比使用训练全集（尤其是百万数量级）要快得多；2.如果目标函数是凸的或者伪凸的，SGD几乎必然可以收敛到全局最优；否则，则收敛到局部最优；3.SGD一般不需要收敛到全局最优，只要得到足够好的解，就可以立即停止。//@Copper\_PKU：sgd的核心思想：是迭代训练，每拿到一个样本就算出基于当前w(t) 的loss function，t代表训练第t次，然后进行下一w（t+1）的更新，w(t+1)=w(t)-(learning rate) * loss function的梯度，这个类比神经网络中bp中的参数训练方法。 sample by sample就是每次仅处理一个样本 而不是一个batch。
+    \item //@Copper\_PKU：从损失函数角度说：primal问题可以理解为正则化项+lossfunction，求解目标是在两个中间取平衡 如果强调loss function最小则会overfitting，所以有C参数。 //@研究者July：SVM还真就是在一定限定条件下，即约束条件下求目标函数的最优值问题，同时，为减少误判率，尽量让损失最小。
+    \item \ldots
+\end{enumerate}
+
+非常享受这种全民大讨论的年代，没有谁一定就对或一定就错，而是各自发表各自的理解见解，真棒！
+\begin{thebibliography}{11}
+\bibitem{}  《支持向量机导论》，[美] Nello Cristianini / John Shawe-Taylor 著；
+\bibitem{}  支持向量机导论一书的支持网站：\url{http://www.support-vector.net/}；
+\bibitem{}  《数据挖掘导论》，[美] Pang-Ning Tan / Michael Steinbach / Vipin Kumar 著；
+\bibitem{} 《数据挖掘：概念与技术》，(加)Jiawei Han;Micheline Kamber 著；
+\bibitem{}  《数据挖掘中的新方法：支持向量机》，邓乃扬 田英杰 著；
+\bibitem{}  《支持向量机--理论、算法和扩展》，邓乃扬 田英杰 著；
+\bibitem{}  支持向量机系列，pluskid：\url{http://blog.pluskid.org/?page_id=683}；
+\bibitem{}  \url{http://www.360doc.com/content/07/0716/23/11966_615252.shtml}；
+\bibitem{}  数据挖掘十大经典算法初探；
+\bibitem{}  《模式识别支持向量机指南》，C.J.C Burges 著；
+\bibitem{}  《统计学习方法》，李航著(第7章有不少内容参考自支持向量机导论一书，不过，可以翻翻看看)；
+\bibitem{}  《统计自然语言处理》，宗成庆编著，第十二章、文本分类；
+\bibitem{}  SVM入门系列，Jasper：\url{http://www.blogjava.net/zhenandaci/category/31868.html}；
+\bibitem{}  最近邻决策和SVM数字识别的实现和比较，作者不详；
+\bibitem{}  斯坦福大学机器学习课程原始讲义：\url{http://www.cnblogs.com/jerrylead/archive/2012/05/08/2489725.html}；
+\bibitem{}  斯坦福机器学习课程笔记：\url{http://www.cnblogs.com/jerrylead/tag/Machine%20Learning/}；
+\bibitem{}  \url{http://www.cnblogs.com/jerrylead/archive/2011/03/13/1982639.html}；
+\bibitem{}  SMO算法的数学推导：\url{http://www.cnblogs.com/jerrylead/archive/2011/03/18/1988419.html}；
+\bibitem{}  数据挖掘掘中所需的概率论与数理统计知识、上；
+\bibitem{}  关于机器学习方面的文章，可以读读：\url{http://www.cnblogs.com/vivounicorn/category/289453.html}；
+\bibitem{}  数学系教材推荐：\url{http://blog.sina.com.cn/s/blog_5e638d950100dswh.html}；
+\bibitem{}  《神经网络与机器学习(原书第三版)》，[加] Simon Haykin 著；
+\bibitem{}  正态分布的前世今生：\url{http://t.cn/zlH3Ygc}；
+\bibitem{}  《数理统计学简史》，陈希孺院士著；
+\bibitem{}  《最优化理论与算法(第2版)》，陈宝林编著；
+\bibitem{}  A Gentle Introduction to Support Vector Machines in Biomedicine：\url{http://www.nyuinformatics.org/downloads/supplements/SVM_Tutorial_2010/Final_WB.pdf}，此PPT很赞，除了对引入拉格朗日对偶变量后的凸二次规划问题的深入度不够之外，其它都挺好，配图很精彩，本文有几张图便引自此PPT中；
+\bibitem{}  来自卡内基梅隆大学carnegie mellon university(CMU)的讲解SVM的PPT：\url{http://www.autonlab.org/tutorials/svm15.pdf}；
+\bibitem{}  发明libsvm的台湾林智仁教授06年的机器学习讲义SVM：\url{http://wenku.baidu.com/link?url=PWTGMYNb4HGUrUQUZwTH2B4r8pIMgLMiWIK1ymVORrds_11VOkHwp-JWab7IALDiors64JW_6mD93dtuWHwFWxsAk6p0rzchR8Qh5_4jWHC}；
+\bibitem{}  \url{http://staff.ustc.edu.cn/~ketang/PPT/PRLec5.pdf}；
+\bibitem{}  Introduction to Support Vector Machines (SVM)，By Debprakash Patnai M.E (SSA)，\url{https://www.google.com.hk/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0CCwQFjAA&url=http%3a%2f%2fwww%2epws%2estu%2eedu%2etw%2fccfang%2findex%2efiles%2fAI%2fAI%26ML-Support%2520Vector%2520Machine-1%2eppt&ei=JRR6UqT5C-iyiQfWyIDgCg&usg=AFQjCNGw1fTbpH4ltQjjmx1d25ZqbCN9nA}；
+\bibitem{}  多人推荐过的libsvm：\url{http://www.csie.ntu.edu.tw/~cjlin/libsvm/}；
+\bibitem{}  《machine learning in action》，中文版为《机器学习实战》；
+\bibitem{}  SMO算法的提出：Sequential Minimal Optimization A Fast Algorithm for Training Support Vector Machines：\url{http://research.microsoft.com/en-us/um/people/jplatt/smoTR.pdf}；
+\bibitem{}  《统计学习理论的本质》，[美] Vladimir N. Vapnik著，非常晦涩，不做过多推荐；
+\bibitem{}  张兆翔，机器学习第五讲之支持向量机\url{http://irip.buaa.edu.cn/~zxzhang/courses/MachineLearning/5.pdf}；
+\bibitem{}  VC维的理论解释：\url{http://www.svms.org/vc-dimension/}，中文VC维解释\url{http://xiaoxia001.iteye.com/blog/1163338}；
+\bibitem{}  来自NEC Labs America的Jason Weston关于SVM的讲义\url{http://www.cs.columbia.edu/~kathy/cs4701/documents/jason_svm_tutorial.pdf}；
+\bibitem{}  来自MIT的SVM讲义：\url{http://www.mit.edu/~9.520/spring11/slides/class06-svm.pdf}；
+\bibitem{}  PAC问题：\url{http://www.cs.huji.ac.il/~shashua/papers/class11-PAC2.pdf}；
+\bibitem{}  百度张潼老师的两篇论文：《Statistical behavior and consistency of classification methods based on convex risk minimization》\url{http://home.olemiss.edu/~xdang/676/Consistency_of_Classification_Convex_Risk_Minimization.pdf}，《Statistical analysis of some multi-category large margin classification methods》；
+\bibitem{}  \url{http://jacoxu.com/?p=39}；
+\bibitem{}  《矩阵分析与应用》，清华张贤达著；
+\bibitem{}  SMO算法的实现：\url{http://blog.csdn.net/techq/article/details/6171688}；
+\bibitem{}  常见面试之机器学习算法思想简单梳理：\url{http://www.cnblogs.com/tornadomeet/p/3395593.html}；
+\bibitem{}  矩阵的wikipedia页面：\url{http://zh.wikipedia.org/wiki/%E7%9F%A9%E9%98%B5}；
+\bibitem{}  最小二乘法及其实现：\url{http://blog.csdn.net/qll125596718/article/details/8248249}；
+\bibitem{}  统计学习方法概论：\url{http://blog.csdn.net/qll125596718/article/details/8351337}；
+\bibitem{}  \url{http://www.csdn.net/article/2012-12-28/2813275-Support-Vector-Machine}；
+\bibitem{}  A Tutorial on Support Vector Regression：\url{http://alex.smola.org/papers/2003/SmoSch03b.pdf}；SVR简明版：\url{http://www.cmlab.csie.ntu.edu.tw/~cyy/learning/tutorials/SVR.pdf}。
+\bibitem{}  SVM Org：\url{http://www.support-vector-machines.org/}；
+\bibitem{}  R. Collobert. Large Scale Machine Learning. Universit Paris VI phd thesis. 2004：\url{http://ronan.collobert.com/pub/matos/2004_phdthesis_lip6.pdf}；
+\bibitem{}  Making Large-Scale SVM Learning Practical：\url{http://www.cs.cornell.edu/people/tj/publications/joachims_99a.pdf}；
+\bibitem{}  文本分类与SVM：\url{http://blog.csdn.net/zhzhl202/article/details/8197109}；
+\bibitem{}  Working Set Selection Using Second Order Information
+\bibitem{}  for Training Support Vector Machines：\url{http://www.csie.ntu.edu.tw/~cjlin/papers/quadworkset.pdf}；
+\bibitem{}  SVM Optimization: Inverse Dependence on Training Set Size：\url{http://icml2008.cs.helsinki.fi/papers/266.pdf}；
+\bibitem{}  Large-Scale Support Vector Machines: Algorithms and Theory：\url{http://cseweb.ucsd.edu/~akmenon/ResearchExam.pdf}；
+\bibitem{}  凸优化的概念：\url{http://cs229.stanford.edu/section/cs229-cvxopt.pdf}；
+\bibitem{}  《凸优化》，作者: Stephen Boyd / Lieven Vandenberghe，原作名: Convex Optimization；
+\bibitem{}  Large-scale Non-linear Classification: Algorithms and Evaluations，Zhuang Wang，讲了很多SVM算法的新进展：\url{http://ijcai13.org/files/tutorial_slides/te2.pdf}；
+\end{thebibliography}
+
+\section*{后记}
+ OK，此文从最初2012年5月开始动笔，到后续不断的修改，创造了三个之最，即所写时间最长，所花心血最大，所改次数最多，因为我的目标是让没有任何机器学习基础的都能看懂此文，所以总是不停的改，不停的改，不想放过任何一个小的细节。再者，引用侯捷的一句话是：天下大作，必作于细。
+
+ 最后，非常感谢pluskid及诸多朋友们的文章及著作，让我有机会在其基础上总结、深入。有任何问题，敬请广大读者随时不吝批评指正，感谢。
 \end{document}
