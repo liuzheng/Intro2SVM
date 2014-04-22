@@ -141,7 +141,7 @@ f(x)=w^Tx+b
 请读者注意，下面的篇幅将按下述3点走：
 \begin{enumerate}
 \item 咱们就要确定上述分类函数$f(x) = w\cdot x + b$（$w\cdot x$表示w与x的内积）中的两个参数$w$和$b$，通俗理解的话$w$是法向量，$b$是截距（再次说明：定义特征到结果的输出函数$u=\vert w\cdot \vert x-b$，与我们最开始定义的$f(x)=w^Tx+b$实质是一样的）；
-\item 那如何确定$w$和$b$呢？答案是寻找两条边界端或极端划分直线中间的最大间隔（之所以要寻最大间隔是为了能更好的划分不同类的点，下文你将看到：为寻最大间隔，导出$1/2||w||^2!!!!!!!!!!!!!!!!!!!!!$，继而引入拉格朗日函数和对偶变量$a$，化为对单一因数对偶变量$a$的求解，当然，这是后话），从而确定最终的最大间隔分类超平面hyper plane和分类函数；
+\item 那如何确定$w$和$b$呢？答案是寻找两条边界端或极端划分直线中间的最大间隔（之所以要寻最大间隔是为了能更好的划分不同类的点，下文你将看到：为寻最大间隔，导出$1/2||w||^2$继而引入拉格朗日函数和对偶变量$a$，化为对单一因数对偶变量$a$的求解，当然，这是后话），从而确定最终的最大间隔分类超平面hyper plane和分类函数；
 \item 进而把寻求分类函数$f(x) = w\cdot x + b$的问题转化为对$w$，$b$的最优化问题，最终化为对偶因子的求解。
 \end{enumerate}
 
@@ -179,7 +179,7 @@ f(x)=w^Tx+b
 \subsubsection{点到超平面的距离定义：几何间隔Geometrical margin}
 \begin{figure}[H]
 \centering
-\includegraphics[width=13cm]{fig5}
+\includegraphics[width=8cm]{fig5}
 \end{figure}
 
 在给出几何间隔的定义之前，咱们首先来看下，如上图所示，对于一个点 $x$ ，令其垂直投影到超平面上的对应的为 $x_0$ ，由于 $w$ 是垂直于超平面的一个向量，$\gamma$为样本$x$到分类间隔的距离，我们有
@@ -199,7 +199,7 @@ x=x_0+\gamma\frac{w}{\|w\|}
   \widetilde{\gamma}=y\gamma=\frac{\widehat{\gamma}}{\|w\|}
 \end{equation}
 \begin{center}
-（代入相关式子可以得出：yi*(w/||w|| + b/||w||)）
+（代入相关式子可以得出：$y_i*(w/\|w\| + b/\|w\|)$）
 \end{center}
 
 正如本文评论下读者popol1991留言：函数间隔$y*(wx+b)=y*f(x)$实际上就是$|f(x)|$，只是人为定义的一个间隔度量；而几何间隔$|f(x)|/\|w\|$才是直观上的点到超平面距离。
@@ -251,7 +251,7 @@ x=x_0+\gamma\frac{w}{\|w\|}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=13cm]{fig7}
+  \includegraphics[width=7cm]{fig7}
 \end{figure}
 通过最大化 margin ，我们使得该分类器对数据进行分类时具有了最大的 confidence，从而设计决策最优分类超平面。
 
@@ -259,7 +259,7 @@ x=x_0+\gamma\frac{w}{\|w\|}
 上节，我们介绍了Maximum Margin Classifier，但并没有具体阐述到底什么是Support Vector，本节，咱们来重点阐述这个概念。咱们不妨先来回忆一下上节1.4节最后一张图：
 \begin{figure}[H]
   \centering
-  \includegraphics[width=13cm]{fig8}
+  \includegraphics[width=7cm]{fig8}
 \end{figure}
 
 可以看到两个支撑着中间的 gap 的超平面，它们到中间的纯红线separating hyper plane 的距离相等，即我们所能得到的最大的 geometrical margin$\widetilde{\gamma}$，而“支撑”这两个超平面的必定会有一些点，而这些“支撑”的点便叫做支持向量Support Vector。
@@ -268,7 +268,7 @@ x=x_0+\gamma\frac{w}{\|w\|}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=13cm]{fig9}
+  \includegraphics[width=8cm]{fig9}
 \end{figure}
 
 很显然，由于这些 supporting vector 刚好在边界上，所以它们满足$y(w^Tx+b)=1$（还记得我们把 functional margin 定为 1 了吗？上节中：“处于方便推导和优化的目的，我们可以令$\widehat{\gamma}=1$”），而对于所有不是支持向量的点，也就是在“阵地后方”的点，则显然$y(w^Tx+b)>1$有。当然，除了从几何直观上之外，支持向量的概念也可以从下文优化过程的推导中得到。
@@ -343,7 +343,7 @@ OK，到此为止，算是了解到了SVM的第一层，对于那些只关心怎
   \lambda\neq0m\mu_k\geq0,\mu_kg_k(x_*)=0
 \end{split}
 \end{equation}
-经过论证，我们这里的问题是满足 KKT 条件的（首先已经满足Slater condition，再者$f$和$g_i$也都是可微的，即$L$对$w$和$b$都可导），因此现在我们便转化为求解第二个问题。也就是说，现在，咱们的原问题通过满足一定的条件，已经转化成了对偶问题。而求解这个对偶学习问题，分为3个步骤，首先要让L(w，b，a) 关于 w 和 b 最小化，然后求对α的极大，最后利用SMO算法求解对偶因子。
+经过论证，我们这里的问题是满足 KKT 条件的（首先已经满足Slater condition，再者$f$和$g_i$也都是可微的，即$L$对$w$和$b$都可导），因此现在我们便转化为求解第二个问题。也就是说，现在，咱们的原问题通过满足一定的条件，已经转化成了对偶问题。而求解这个对偶学习问题，分为3个步骤，首先要让$L(w,b,a)$ 关于 $w$ 和 $b$ 最小化，然后求对$\alpha$的极大，最后利用SMO算法求解对偶因子。
 
 \subsubsection{对偶问题求解的3个步骤}
 （1）、首先固定，要让$ L$ 关于 $w$ 和 $b$ 最小化，我们分别对$w$，$b$求偏导数，即令 $\partial\mathcal{L}/\partial w$ 和 $\partial\mathcal{L}/\partial b$ 等于零（对$w$求导结果的解释请看本文评论下第45楼回复）：
@@ -400,7 +400,7 @@ $b^*=-\frac{\max_{i:y^{(i)}=-1}w^{*T}x^{(i)}+\min_{i:y^{(i)}=1}w^{*T}x^{(i)}}{2}
 \begin{equation}
   \begin{split}
     \max_\alpha\sum_{i=1}^n\alpha_i-\frac{1}{2}\sum_{i,j=1}^n\alpha_i\alpha_jy_iy_jx_i^Tx_j\\
-    s.t,\alpha_i\geq0,i=1,\cdots,n\\
+    s.t.\alpha_i\geq0,i=1,\cdots,n\\
    \sum_{i=1}^n\alpha_iy_i=0
   \end{split}
 \end{equation}
@@ -463,12 +463,12 @@ OK，为过渡到下节2.2节所介绍的核函数，让我们再来看看上述
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=13cm]{fig10}
+  \includegraphics[width=8cm]{fig10}
 \end{figure}
  使得在高维属性空间中有可能最训练数据实现超平面的分割，避免了在原输入空间中进行非线性曲面分割计算。SVM数据集形成的分类函数具有这样的性质：它是一组以支持向量为参数的非线性函数的线性组合，因此分类函数的表达式仅和支持向量的数量有关，而独立于空间的维度，在处理高维输入空间的分类时，这种方法尤其有效，其工作原理如下图所示：
  \begin{figure}[H]
    \centering
-   \includegraphics[width=13cm]{fig11}
+   \includegraphics[width=8cm]{fig11}
  \end{figure}
 2、具体点说：在我们遇到核函数之前，如果用原始的方法，那么在用线性学习器学习一个非线性关系，需要选择一个非线性特征集，并且将数据写成新的表达形式，这等价于应用一个固定的非线性映射，将数据映射到特征空间，在特征空间中使用线性学习器，因此，考虑的假设集是这种类型的函数：
 \begin{equation}
@@ -498,7 +498,7 @@ OK，为过渡到下节2.2节所介绍的核函数，让我们再来看看上述
 
  \begin{figure}[H]
    \centering
-   \includegraphics[width=13cm]{fig12}
+   \includegraphics[width=8cm]{fig12}
  \end{figure}
 
  事实上，上图所述的这个数据集，是用两个半径不同的圆圈加上了少量的噪音生成得到的，所以，一个理想的分界应该是一个“圆圈”而不是一条线（超平面）。如果用$X_1$ 和$X_2$ 来表示这个二维平面的两个坐标的话，我们知道一条二次曲线（圆圈是二次曲线的一种特殊情况）的方程可以写作这样的形式：
@@ -522,8 +522,8 @@ OK，为过渡到下节2.2节所介绍的核函数，让我们再来看看上述
 
 因此我只需要把它映射到 $Z_1=X^2_1, Z_2=X_2^2, Z_3=X_2$ 这样一个三维空间中即可，下图即是映射之后的结果，将坐标轴经过适当的旋转，就可以很明显地看出，数据是可以通过一个平面来分开的(pluskid：下面的gif 动画，先用 Matlab 画出一张张图片，再用 Imagemagick 拼贴成)：
 %\animategraphics[autoplay,loop,width=13cm]{8}{fig}{1}{8}
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+\begin{center}\href{http://img.my.csdn.net/uploads/201304/03/1364952814\_3505.gif}{动态图片}\end{center}
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 现在让我们再回到 SVM 的情形，假设原始的数据时非线性的，我们通过一个映射$\phi(\cdot)$将其映射到一个高维空间中，数据变得线性可分了，这个时候，我们就可以使用原来的推导来进行计算，只是所有的推导现在是在新的空间，而不是原始空间中进行。当然，推导过程也并不是可以简单地直接类比的，例如，原本我们要求超平面的法向量 $w$ ，但是如果映射之后得到的新空间的维度是无穷维的（确实会出现这样的情况，比如后面会提到的 高斯核Gaussian Kernel ），要表示一个无穷维的向量描述起来就比较麻烦。于是我们不妨先忽略过这些细节，直接从最终的结论来分析，回忆一下，我们上一次2.1节中得到的最终的分类函数是这样的：
 \begin{equation}
@@ -643,7 +643,7 @@ OK，不再做过多介绍了，对核函数有进一步兴趣的，还可以看
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=13cm]{fig16}
+  \includegraphics[width=8cm]{fig16}
 \end{figure}
 
 用黑圈圈起来的那个蓝点是一个 outlier ，它偏离了自己原本所应该在的那个半空间，如果直接忽略掉它的话，原来的分隔超平面还是挺好的，但是由于这个 outlier 的出现，导致分隔超平面不得不被挤歪了，变成途中黑色虚线所示（这只是一个示意图，并没有严格计算精确坐标），同时 margin 也相应变小了。当然，更严重的情况是，如果这个 outlier 再往右上移动一些距离的话，我们将无法构造出能将数据分开的超平面来。
@@ -654,7 +654,7 @@ OK，不再做过多介绍了，对核函数有进一步兴趣的，还可以看
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=13cm]{fig17}
+  \includegraphics[width=9cm]{fig17}
 \end{figure}
 
  对于远离分类平面的点值为0；对于边缘上的点值在$[0, 1/L]$之间，其中，L为训练数据集个数，即数据集大小；对于outline数据和内部的数据值为1/L。更多请参看本文文末参考条目第51条。”
@@ -768,7 +768,7 @@ OK，理解到这第二层，已经能满足绝大部分人一窥SVM原理的好
 顺便再解释下这个所谓的扩充间隔$\gamma$，$\gamma$即为样本到分类间隔的距离，即从$\gamma$引出的最大分类间隔。OK，还记得上文第1.3.2节开头的内容么？如下：“
 \begin{figure}[H]
   \centering
-  \includegraphics[width=13cm]{fig21}
+  \includegraphics[width=8cm]{fig21}
 \end{figure}
 在给出几何间隔的定义之前，咱们首先来看下，如上图所示，对于一个点 $x$ ，令其垂直投影到超平面上的对应的为 $x_0$ ，由于$ w$ 是垂直于超平面的一个向量，$\gamma$为样本$x$到分类间隔的距离，我们有
 \begin{equation}
@@ -815,7 +815,7 @@ Mercer定理 ：如果函数K是上的映射（也就是从两个n维向量映�
 \begin{equation}
   \label{eq_one}
   \min_{f\in F}\frac{1}{N}\sum_{i=1}^NL(y_i,f(x_i))
-\end{equation}<F4>
+\end{equation}
 
 当样本容量很小时，经验风险最小化的策略容易产生过拟合的现象。结构风险最小化可以防止过拟合。结构风险是在经验风险的基础上加上白哦是模型复杂度的正则化项，结构风险定义如下：
 \begin{equation}
